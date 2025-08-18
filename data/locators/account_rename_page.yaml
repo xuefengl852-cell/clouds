@@ -1,0 +1,16 @@
+locators:
+  account_rename:
+    #账户信息输入框
+    account_input: "hanvon.aebr.hanvondrive:id/foldername_edittext"
+    #删除名称
+    delete_name: "hanvon.aebr.hanvondrive:id/deleteTv"
+    #确定按钮
+    sure_button: "hanvon.aebr.hanvondrive:id/dialog_sure"
+    #取消按钮
+    cancel_button: "hanvon.aebr.hanvondrive:id/dialog_cancel"
+    #回到主页验证（绑定网盘）
+    bind_cloud: "hanvon.aebr.hanvondrive:id/tv_drive_type"
+    tv_account: "hanvon.aebr.hanvondrive:id/tv_accout"
+
+
+

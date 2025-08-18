@@ -1,0 +1,50 @@
+2025-08-13 19:52:53 | INFO | conftest.py:391 | ✅ 成功删除数据库文件: /storage/emulated/0/hwsys/database/clouds.db
+2025-08-13 19:52:53 | DEBUG | remote_connection.py:403 | POST http://127.0.0.1:4723/wd/hub/session {'capabilities': {'firstMatch': [{}], 'alwaysMatch': {'appium:automationName': 'UiAutomator2', 'platformName': 'Android', 'appium:platformVersion': '14', 'appium:deviceName': 'Clear6 Turbo', 'appium:appPackage': 'hanvon.aebr.hanvondrive', 'appium:appActivity': 'hanvon.aebr.hanvondrive.activity.MainActivity', 'appium:fastReset': True, 'appium:noReset': False, 'appium:autoGrantPermissions': True, 'appium:recordScreen': True, 'appium:newCommandTimeout': 300}}}
+2025-08-13 19:52:53 | DEBUG | connectionpool.py:241 | Starting new HTTP connection (1): 127.0.0.1:4723
+2025-08-13 19:53:14 | DEBUG | connectionpool.py:544 | http://127.0.0.1:4723 "POST /wd/hub/session HTTP/1.1" 200 0
+2025-08-13 19:53:14 | DEBUG | remote_connection.py:436 | Remote response: status=200 | data={"value":{"capabilities":{"platform":"LINUX","webStorageEnabled":false,"takesScreenshot":true,"javascriptEnabled":true,"databaseEnabled":false,"networkConnectionEnabled":true,"locationContextEnabled":false,"warnings":{},"desired":{"platformName":"Android","automationName":"UiAutomator2","platformVersion":"14","deviceName":"Clear6 Turbo","appPackage":"hanvon.aebr.hanvondrive","appActivity":"hanvon.aebr.hanvondrive.activity.MainActivity","fastReset":true,"noReset":false,"autoGrantPermissions":true,"recordScreen":true,"newCommandTimeout":300},"platformName":"Android","automationName":"UiAutomator2","platformVersion":"14","deviceName":"a4d7b634","appPackage":"hanvon.aebr.hanvondrive","appActivity":"hanvon.aebr.hanvondrive.activity.MainActivity","fastReset":true,"noReset":false,"autoGrantPermissions":true,"recordScreen":true,"newCommandTimeout":300,"deviceUDID":"a4d7b634","deviceApiLevel":34,"deviceScreenSize":"824x1648","deviceScreenDensity":350,"deviceModel":"PM6","deviceManufacturer":"QUALCOMM","pixelRatio":2.1875,"statBarHeight":53,"viewportRect":{"left":0,"top":53,"width":824,"height":1595}},"sessionId":"2584e8ac-e5d8-45b1-aa0a-2f30d97e5b00"}} | headers=HTTPHeaderDict({'X-Powered-By': 'Express', 'Vary': 'X-HTTP-Method-Override', 'Content-Type': 'application/json; charset=utf-8', 'Content-Length': '1161', 'ETag': 'W/"489-r8RCSeaOhfGCS91qagArpan2JwE"', 'Date': 'Wed, 13 Aug 2025 11:53:14 GMT', 'Connection': 'keep-alive'})
+2025-08-13 19:53:14 | DEBUG | remote_connection.py:465 | Finished Request
+2025-08-13 19:53:14 | DEBUG | remote_connection.py:403 | POST http://127.0.0.1:4723/wd/hub/session/2584e8ac-e5d8-45b1-aa0a-2f30d97e5b00/timeouts {'implicit': 10000}
+2025-08-13 19:53:14 | DEBUG | connectionpool.py:544 | http://127.0.0.1:4723 "POST /wd/hub/session/2584e8ac-e5d8-45b1-aa0a-2f30d97e5b00/timeouts HTTP/1.1" 200 0
+2025-08-13 19:53:14 | DEBUG | remote_connection.py:436 | Remote response: status=200 | data={"value":null} | headers=HTTPHeaderDict({'X-Powered-By': 'Express', 'Vary': 'X-HTTP-Method-Override', 'Content-Type': 'application/json; charset=utf-8', 'Content-Length': '14', 'ETag': 'W/"e-9/1BuKMgFObM1mWJm+YjxtXJnUM"', 'Date': 'Wed, 13 Aug 2025 11:53:14 GMT', 'Connection': 'keep-alive'})
+2025-08-13 19:53:14 | DEBUG | remote_connection.py:465 | Finished Request
+2025-08-13 19:53:14 | INFO | base_page.py:52 | 自动生成配置路径: data/locators/login_page.yaml
+2025-08-13 19:53:14 | INFO | base_page.py:68 | 已加载配置文件: D:\clear6Trubo\data\locators\login_page.yaml (for LoginPage)
+2025-08-13 19:53:14 | INFO | base_page.py:52 | 自动生成配置路径: data/locators/login_page.yaml
+2025-08-13 19:53:14 | INFO | base_page.py:106 | 初始化页面: LoginPage | 平台: android
+2025-08-13 19:53:14 | INFO | login_page.py:22 | 初始化登录页面: LoginPage
+2025-08-13 19:53:14 | INFO | base_page.py:201 | 获取定位器：nut_login_page-cancel_button = hanvon.aebr.hanvondrive:id/janCancel
+2025-08-13 19:53:14 | INFO | base_page.py:179 | 处理完整资源ID: hanvon.aebr.hanvondrive:id/janCancel
+2025-08-13 19:53:14 | DEBUG | loactor_validator.py:50 | 定位器验证通过: cancel_button -> ('id', 'hanvon.aebr.hanvondrive:id/janCancel')
+2025-08-13 19:53:14 | INFO | base_page.py:201 | 获取定位器：nut_login_page-home_bind = hanvon.aebr.hanvondrive:id/drive_gridview
+2025-08-13 19:53:14 | INFO | base_page.py:179 | 处理完整资源ID: hanvon.aebr.hanvondrive:id/drive_gridview
+2025-08-13 19:53:14 | DEBUG | loactor_validator.py:50 | 定位器验证通过: home_bind -> ('id', 'hanvon.aebr.hanvondrive:id/drive_gridview')
+2025-08-13 19:53:14 | INFO | base_page.py:201 | 获取定位器：nut_login_page-password_field = hanvon.aebr.hanvondrive:id/passEt
+2025-08-13 19:53:14 | INFO | base_page.py:179 | 处理完整资源ID: hanvon.aebr.hanvondrive:id/passEt
+2025-08-13 19:53:14 | DEBUG | loactor_validator.py:50 | 定位器验证通过: password_field -> ('id', 'hanvon.aebr.hanvondrive:id/passEt')
+2025-08-13 19:53:14 | INFO | base_page.py:201 | 获取定位器：nut_login_page-return_button = hanvon.aebr.hanvondrive:id/bt_back
+2025-08-13 19:53:14 | INFO | base_page.py:179 | 处理完整资源ID: hanvon.aebr.hanvondrive:id/bt_back
+2025-08-13 19:53:14 | DEBUG | loactor_validator.py:50 | 定位器验证通过: return_button -> ('id', 'hanvon.aebr.hanvondrive:id/bt_back')
+2025-08-13 19:53:14 | INFO | base_page.py:201 | 获取定位器：nut_login_page-show_password = hanvon.aebr.hanvondrive:id/showPass
+2025-08-13 19:53:14 | INFO | base_page.py:179 | 处理完整资源ID: hanvon.aebr.hanvondrive:id/showPass
+2025-08-13 19:53:14 | DEBUG | loactor_validator.py:50 | 定位器验证通过: show_password -> ('id', 'hanvon.aebr.hanvondrive:id/showPass')
+2025-08-13 19:53:14 | INFO | base_page.py:201 | 获取定位器：nut_login_page-sure_button = hanvon.aebr.hanvondrive:id/janSure
+2025-08-13 19:53:14 | INFO | base_page.py:179 | 处理完整资源ID: hanvon.aebr.hanvondrive:id/janSure
+2025-08-13 19:53:14 | DEBUG | loactor_validator.py:50 | 定位器验证通过: sure_button -> ('id', 'hanvon.aebr.hanvondrive:id/janSure')
+2025-08-13 19:53:14 | INFO | base_page.py:201 | 获取定位器：nut_login_page-username_field = hanvon.aebr.hanvondrive:id/userEt
+2025-08-13 19:53:14 | INFO | base_page.py:179 | 处理完整资源ID: hanvon.aebr.hanvondrive:id/userEt
+2025-08-13 19:53:14 | DEBUG | loactor_validator.py:50 | 定位器验证通过: username_field -> ('id', 'hanvon.aebr.hanvondrive:id/userEt')
+2025-08-13 19:53:14 | INFO | test_data_loader.py:13 | 项目根目录: D:\clear6Trubo
+2025-08-13 19:53:14 | INFO | test_data_loader.py:19 | 完整文件路径: D:\clear6Trubo\data\test_data\login_data_positive.json
+2025-08-13 19:53:14 | INFO | test_data_loader.py:20 | 文件存在: True
+2025-08-13 19:53:14 | INFO | base_page.py:201 | 获取定位器：nut_login_page-username_field = hanvon.aebr.hanvondrive:id/userEt
+2025-08-13 19:53:14 | INFO | base_page.py:179 | 处理完整资源ID: hanvon.aebr.hanvondrive:id/userEt
+2025-08-13 19:53:14 | DEBUG | remote_connection.py:403 | POST http://127.0.0.1:4723/wd/hub/session/2584e8ac-e5d8-45b1-aa0a-2f30d97e5b00/element {'using': 'id', 'value': 'hanvon.aebr.hanvondrive:id/userEt'}
+2025-08-13 19:53:24 | DEBUG | connectionpool.py:544 | http://127.0.0.1:4723 "POST /wd/hub/session/2584e8ac-e5d8-45b1-aa0a-2f30d97e5b00/element HTTP/1.1" 404 0
+2025-08-13 19:53:24 | DEBUG | remote_connection.py:436 | Remote response: status=404 | data={"value":{"error":"no such element","message":"An element could not be located on the page using the given search parameters.","stacktrace":"NoSuchElementError: An element could not be located on the page using the given search parameters.\n    at AndroidUiautomator2Driver.findElOrEls (C:\\Program Files\\Appium\\resources\\app\\node_modules\\appium\\node_modules\\appium-android-driver\\lib\\commands\\find.js:75:11)"}} | headers=HTTPHeaderDict({'X-Powered-By': 'Express', 'Vary': 'X-HTTP-Method-Override', 'Content-Type': 'application/json; charset=utf-8', 'Content-Length': '421', 'ETag': 'W/"1a5-yuJOSFRklCVxrg26KMFW6IndOMU"', 'Date': 'Wed, 13 Aug 2025 11:53:24 GMT', 'Connection': 'keep-alive'})
+2025-08-13 19:53:24 | DEBUG | remote_connection.py:465 | Finished Request
+2025-08-13 19:53:24 | ERROR | base_page.py:239 | 元素定位超时 (10s): id='hanvon.aebr.hanvondrive:id/userEt'
+2025-08-13 19:53:24 | DEBUG | remote_connection.py:403 | DELETE http://127.0.0.1:4723/wd/hub/session/2584e8ac-e5d8-45b1-aa0a-2f30d97e5b00 {}
+2025-08-13 19:53:26 | DEBUG | connectionpool.py:544 | http://127.0.0.1:4723 "DELETE /wd/hub/session/2584e8ac-e5d8-45b1-aa0a-2f30d97e5b00 HTTP/1.1" 200 0
+2025-08-13 19:53:26 | DEBUG | remote_connection.py:436 | Remote response: status=200 | data={"value":null} | headers=HTTPHeaderDict({'X-Powered-By': 'Express', 'Content-Type': 'application/json; charset=utf-8', 'Content-Length': '14', 'ETag': 'W/"e-9/1BuKMgFObM1mWJm+YjxtXJnUM"', 'Date': 'Wed, 13 Aug 2025 11:53:26 GMT', 'Connection': 'keep-alive'})
+2025-08-13 19:53:26 | DEBUG | remote_connection.py:465 | Finished Request

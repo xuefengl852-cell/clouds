@@ -1,0 +1,12 @@
+locators:
+  home:
+    # 网盘主页各个网盘公共ID
+    public_resource_id: "hanvon.aebr.hanvondrive:id/detailFileLayout"
+    # 进入OneDrive网盘标志ID
+    onedrive_home_id: "android:id/content"
+    # 进入阿里云网盘标志ID
+    aliyun_home_id: "com.Hanovn.HanovnBrowser:id/content_frame"
+    # 进入坚果云、webdav网盘标志ID
+    nut_webdav_home_cloud_id: "hanvon.aebr.hanvondrive:id/bt_back"
+    # 进入百度网盘标志ID
+    baidu_home_cloud_id: "hanvon.aebr.hanvondrive:id/tv_drive"

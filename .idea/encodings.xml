@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/data/locators/home_page.yaml" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/data/locators/login_page.yaml" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/data/test_data/login_data_positive.json" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/utils/config_loader.py" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/utils/test_data_loader.py" charset="UTF-8" />
+    <file url="PROJECT" charset="UTF-8" />
+  </component>
+</project>

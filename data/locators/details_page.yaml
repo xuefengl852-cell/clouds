@@ -1,0 +1,16 @@
+locators:
+  details:
+    #关闭详情页按钮
+    close_button: "hanvon.aebr.hanvondrive:id/dialog_close"
+    #重命名按钮
+    rename_button: "hanvon.aebr.hanvondrive:id/tv_rename_drive"
+    #账户信息按钮
+    account_button: "hanvon.aebr.hanvondrive:id/tv_accout_detail"
+    #坚果云按钮
+    nut_cloud: "hanvon.aebr.hanvondrive:id/drive_type"
+    #账户信息解绑按钮
+    account_unbind: "hanvon.aebr.hanvondrive:id/unbindTv"
+    #重命名弹窗
+    rename_window: "hanvon.aebr.hanvondrive:id/dialog_title"
+
+

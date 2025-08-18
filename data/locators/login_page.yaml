@@ -1,0 +1,17 @@
+locators:
+  nut_login_page:
+    #首页元素
+    home_bind: "hanvon.aebr.hanvondrive:id/drive_gridview"
+    #帐号元素
+    username_field: "hanvon.aebr.hanvondrive:id/userEt"
+    #密码元素
+    password_field: "hanvon.aebr.hanvondrive:id/passEt"
+    #登录页面取消按钮
+    cancel_button: "hanvon.aebr.hanvondrive:id/janCancel"
+    #登陆页面确定
+    sure_button: "hanvon.aebr.hanvondrive:id/janSure"
+    #密码显示、关闭按钮
+    show_password: "hanvon.aebr.hanvondrive:id/showPass"
+    #坚果云索引
+    nuts_tore_index: 1
+    return_button: "hanvon.aebr.hanvondrive:id/bt_back"

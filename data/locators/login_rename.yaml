@@ -1,0 +1,18 @@
+locators:
+  rename:
+    #登录成功后的坚果云网盘按钮
+    nut_login_success: "hanvon.aebr.hanvondrive:id/drive_type"
+    #长按弹窗后的×
+    long_press_back: "hanvon.aebr.hanvondrive:id/dialog_close"
+    #长按后账户信息按钮
+    account_information: "hanvon.aebr.hanvondrive:id/tv_accout_detail"
+    #长按后重命名按钮
+    nut_rename: "hanvon.aebr.hanvondrive:id/tv_accout_detail"
+    #重命名输入
+    nut_rename_input: "hanvon.aebr.hanvondrive:id/foldername_edittext"
+    #输入框后的×
+    rename_back: "hanvon.aebr.hanvondrive:id/foldername_edittext"
+    #重命名取消
+    rename_cancel: "hanvon.aebr.hanvondrive:id/dialog_cancel"
+    #重命名确定
+    rename_sure: "hanvon.aebr.hanvondrive:id/dialog_sure"

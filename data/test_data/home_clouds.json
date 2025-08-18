@@ -1,0 +1,32 @@
+[
+  {
+    "test_name": "aliyun_cloud",
+    "index": 0,
+    "cloud_type": "aliyun",
+    "description": "阿里云网盘"
+  },
+  {
+    "test_name": "nut_cloud",
+    "index": 1,
+    "cloud_type": "nut_cloud",
+    "description": "坚果云网盘"
+  },
+  {
+    "test_name": "onedrive_cloud",
+    "index": 2,
+    "cloud_type": "onedrive",
+    "description": "onedrive云网盘"
+  },
+  {
+    "test_name": "webdav",
+    "index": 3,
+    "cloud_type": "webdav",
+    "description": "webdav网盘"
+  },
+  {
+    "test_name": "baidu_cloud",
+    "index": 4,
+    "cloud_type": "baidu",
+    "description": "百度网盘"
+  }
+]

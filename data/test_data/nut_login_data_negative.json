@@ -1,0 +1,42 @@
+[
+  {
+    "test_name": "invalid_password",
+    "username": "liuxuefeng@hanwang.com.cn",
+    "password": "wrong_password",
+    "expected_result": false,
+    "description": "使用错误密码登录",
+    "expected_error": "登陆失败"
+  },
+  {
+    "test_name": "boundary_value",
+    "username": "liuxuefengliuxuefengliuxuefengliuxuefengliuxuefengliuxuefengliuxuefengliuxuefengliuxuefengliuxuefengliuxuefengliuxuefengliuxuefengliuxuefengliuxuefengliuxuefengliuxuefengliuxuefengliuxuefengliuxuefengliuxuefengliuxuefengliuxuefengliuxuefengliuxuefengliuxuefengliuxuefengliuxuefengliuxuefengliuxuefengliuxuefengliuxuefengliuxuefengliuxuefengliuxuefengliuxuefengliuxuefengliuxuefengliuxuefengliuxuefengliuxuefengliuxuefengliuxuefengliuxuefengliuxuefengliuxuefengliuxuefengliuxuefengliuxuefengliuxuefengliuxuefengliuxuefengliuxuefengliuxuefengliuxuefengliuxuefengliuxuefeng@hanwang.com.cn",
+    "password": "wrong_passwordwrong_passwordwrong_passwordwrong_passwordwrong_passwordwrong_passwordwrong_passwordwrong_passwordwrong_passwordwrong_passwordwrong_passwordwrong_passwordwrong_passwordwrong_passwordwrong_passwordwrong_passwordwrong_passwordwrong_passwordwrong_passwordwrong_passwordwrong_passwordwrong_passwordwrong_passwordwrong_passwordwrong_passwordwrong_passwordwrong_passwordwrong_passwordwrong_passwordwrong_passwordwrong_passwordwrong_passwordwrong_passwordwrong_passwordwrong_passwordwrong_passwordwrong_passwordwrong_passwordwrong_passwordwrong_passwordwrong_passwordwrong_passwordwrong_passwordwrong_passwordwrong_passwordwrong_passwordwrong_passwordwrong_passwordwrong_passwordwrong_password",
+    "expected_result": false,
+    "description": "边界值登录",
+    "expected_error": "登陆失败"
+  },
+  {
+    "test_name": "invalid_username",
+    "username": "invalid@example.com",
+    "password": "ani2k9vrmac7epjp",
+    "expected_result": false,
+    "description": "使用错误用户名登录",
+    "expected_error": "登陆失败"
+  },
+  {
+    "test_name": "empty_password",
+    "username": "liuxuefeng@hanwang.com.cn",
+    "password": "  ",
+    "expected_result": false,
+    "description": "空密码登录",
+    "expected_error": "请输入应用密码"
+  },
+  {
+    "test_name": "empty_username",
+    "username": "  ",
+    "password": "  ",
+    "expected_result": false,
+    "description": "空账号登录",
+    "expected_error": "请输入您的账号"
+  }
+]

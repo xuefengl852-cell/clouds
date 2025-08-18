@@ -1,0 +1,9 @@
+[
+  {
+    "test_name": "whitespace_name_negative",
+    "new_name": "   ",
+    "default_placeholder": "输入网盘名称",
+    "expected_error": "请输入名称，名称不能为空",
+    "description": "空白名称重命名(负面测试)"
+  }
+]

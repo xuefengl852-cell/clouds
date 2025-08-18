@@ -1,0 +1,30 @@
+[
+  {
+    "test_name": "valid_credentials_hv",
+    "username": "liuxuefeng@hanwang.com.cn",
+    "password": "ani2k9vrmac7epjp",
+    "expected_result": true,
+    "description": "使用有效凭据登录"
+  },
+  {
+    "test_name": "valid_credentials_163",
+    "username": "chengyue5923@163.com",
+    "password": "ajqegndyv6fignap",
+    "expected_result": true,
+    "description": "使用有效凭据登录"
+  },
+  {
+    "test_name": "valid_credentials_qq_1",
+    "username": "2303702042@qq.com",
+    "password": "ae4nxkmfkejq9j5n",
+    "expected_result": true,
+    "description": "使用有效凭据登录"
+  },
+  {
+    "test_name": "valid_credentials_qq_2",
+    "username": "2241159181@qq.com",
+    "password": "ayi57esanwr54bpz",
+    "expected_result": true,
+    "description": "使用有效凭据登录"
+  }
+]

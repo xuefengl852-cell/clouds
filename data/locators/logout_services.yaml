@@ -1,0 +1,5 @@
+locators:
+  logout:
+    #绑定网盘按钮
+    bind_cloud: "hanvon.aebr.hanvondrive:id/tv_drive_type"
+

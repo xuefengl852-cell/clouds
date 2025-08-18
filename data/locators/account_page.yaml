@@ -1,0 +1,16 @@
+locators:
+  account:
+    #账户信息
+    account_information: "hanvon.aebr.hanvondrive:id/tv_accout_detail"
+    #编辑名称
+    edit_name: "hanvon.aebr.hanvondrive:id/nutcloudTv"
+    #账户名称输入框
+    input_account: "hanvon.aebr.hanvondrive:id/nutcloudEt"
+    #账户名称输入框回退按键
+    input_account_back: "hanvon.aebr.hanvondrive:id/deleteTv"
+    #确定编辑
+    nick_name_sure: "hanvon.aebr.hanvondrive:id/nickNamesure"
+    #取消编辑
+    nick_name_cancel: "hanvon.aebr.hanvondrive:id/nickNamecancel"
+    #左上角返回按钮
+    return_button: "hanvon.aebr.hanvondrive:id/bt_back"

@@ -1,0 +1,20 @@
+locators:
+  home:
+    #返回按钮
+    return_button: "hanvon.aebr.hanvondrive:id/bt_back"
+    #绑定网盘按钮
+    bind_cloud: "hanvon.aebr.hanvondrive:id/tv_drive_type"
+    #坚果云按钮
+    nut_cloud: "hanvon.aebr.hanvondrive:id/drive_type"
+    # 更多按钮
+    view_more: "hanvon.aebr.hanvondrive:id/bt_binddrive_set"
+    #向左翻页
+    iv_prepage: "hanvon.aebr.hanvondrive:id/iv_prepage"
+    #向右翻页
+    iv_nextpage: "hanvon.aebr.hanvondrive:id/iv_nextpage"
+    #长按网盘弹窗
+    bind_cloud_window: "hanvon.aebr.hanvondrive:id/dialog_title"
+    #更多-视图模式
+    more_view_window: "hanvon.aebr.hanvondrive:id/tv_display"
+    nut_file_id: "hanvon.aebr.hanvondrive:id/fileGridTv"
+

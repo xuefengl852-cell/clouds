@@ -1,0 +1,30 @@
+[
+  {
+    "test_name": "英文名称中命名",
+    "new_name": "NewAccountName",
+    "default_placeholder": "输入网盘名称",
+    "success_toast": "重命名成功",
+    "description": "基础重命名流程"
+  },
+  {
+    "test_name": "中文名称重命名",
+    "new_name": "汉王科技账户",
+    "default_placeholder": "输入网盘名称",
+    "success_toast": "重命名成功",
+    "description": "中文名称重命名"
+  },
+  {
+    "test_name": "特殊符号重命名",
+    "new_name": "Account_123!@#.+-~！@#￥%……&*（）——+？“：|",
+    "default_placeholder": "输入网盘名称",
+    "success_toast": "重命名成功",
+    "description": "特殊字符名称重命名"
+  },
+  {
+    "test_name": "长名称命名",
+    "new_name": "VeryLongAccountNameWithMoreThanFiftyCharactersForTestingVeryLongAccountNameWithMoreThanFiftyCharactersForTesting",
+    "default_placeholder": "输入网盘名称",
+    "success_toast": "重命名成功",
+    "description": "超长名称重命名"
+  }
+]

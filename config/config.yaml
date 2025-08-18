@@ -1,0 +1,53 @@
+# ======================
+# 设备配置
+# ======================
+device:
+  platformName: Android            # 操作系统平台
+  platformVersion: "14"            # Android版本号（加引号确保为字符串）
+  deviceName: "Clear6 Turbo"       # 设备名称
+  automationName: UiAutomator2     # 自动化引擎
+  appPackage: hanvon.aebr.hanvondrive  # 应用包名
+  appActivity: hanvon.aebr.hanvondrive.activity.MainActivity  # 主活动
+  fastReset: true                  # 每次测试前完全重置应用
+  noReset: false                   # 是否保留用户信息
+  autoGrantPermissions: true       # 自动授予权限
+  recordScreen: true               # 启用录屏功能
+  newCommandTimeout: 300           # 新命令超时时间（秒）
+
+# ======================
+# Appium服务器配置
+# ======================
+appium:
+  server_url: "http://127.0.0.1:4723/wd/hub"  # Appium服务器地址
+  local_timezone: "Asia/Shanghai"   # 本地时区
+  relaxedSecurityEnabled: True
+
+
+
+# ======================
+# 超时设置
+# ======================
+timeout:
+  default: 10                      # 默认元素查找超时（秒）
+  long_press: 2.0                  # 长按持续时间（秒）
+  polling: 0.5                     # 轮询间隔（秒）
+# ======================
+# 日志与报告配置
+# ======================
+reporting:
+  allure:
+    report_dir: "./reports/allure-results"  # Allure报告目录
+    attach_screenshots: true                # 是否附加截图
+    attach_logs: true                       # 是否附加日志
+  screenshot:
+    on_failure: true                        # 失败时截图
+    on_success: false                       # 成功时截图（可选）
+
+# ======================
+# 性能监控配置
+# ======================
+performance:
+  enable_monitoring: true           # 启用性能监控
+  cpu_usage_threshold: 80           # CPU使用率阈值（%）
+  memory_usage_threshold: 70        # 内存使用率阈值（%）
+  fps_threshold: 30                 # 最低FPS阈值

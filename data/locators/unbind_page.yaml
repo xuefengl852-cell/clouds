@@ -1,0 +1,9 @@
+locators:
+  unbind:
+    #账户信息输入框
+    unbind_title: "hanvon.aebr.hanvondrive:id/title"
+    #确定按钮
+    unbind_button: "hanvon.aebr.hanvondrive:id/confirm"
+    #取消按钮
+    cancel_button: "hanvon.aebr.hanvondrive:id/cancel"
+
