@@ -1,5 +1,4 @@
 import logging
-import time
 
 from selenium.common import TimeoutException
 
@@ -53,17 +52,19 @@ class HomeCloudsPage(BasePage):
         )
         return self
     
-    def assert_cloud_home_resource_id_visible(self, cloud_type, timeout=3):
-        if cloud_type == 'onedrive':
-            time.sleep(timeout)
+    def is_cloud_home_resource_id_visible(self, cloud_type, timeout=3):
         try:
-            self.wait_for_element(
-                self.get_home_id_locator(cloud_type)
+            # if cloud_type == 'onedrive' | 'aliyun':
+            #     time.sleep(timeout)
+            #     return cloud_index_data['cloud_id']
+            element_value = self.get_element_attribute(
+                self.get_home_id_locator(cloud_type),
+                "text"
             )
-            return True
+            return element_value
+        
         except TimeoutException:
             logger.error(f"等待 {cloud_type} 主页元素超时")
-            return False
         return self
     
     def get_home_id_locator(self, cloud_type):

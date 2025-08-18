@@ -20,6 +20,6 @@ class TestHomeClouds:
         with allure.step("网盘点击"):
             allure.dynamic.title(cloud_index['test_name'])
             result = setup.click_nut_cloud(cloud_index['index'])
-            assert result.assert_cloud_home_resource_id_visible(cloud_index['cloud_type']), \
-                f"{cloud_index['cloud_type']} 网盘主页未显示"
+            assert result.is_cloud_home_resource_id_visible(cloud_index['cloud_type']) == cloud_index['text'], \
+                f"点击{cloud_index['cloud_type']} 网盘失败"
             result.back()
