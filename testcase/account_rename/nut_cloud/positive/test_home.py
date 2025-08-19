@@ -10,7 +10,7 @@ class TestHomeScenarios:
     def test_long_cloud(self, logged_in_home_page):
         with allure.step("长按网盘图标"):
             result = logged_in_home_page.long_nut_cloud()
-            assert result.assert_enter_details(), f"长按坚果云网盘断言失败"
+            assert result.get_text_long_enter_details() == '', f"长按坚果云网盘断言失败"
     
     @allure.story("用户点击绑定网盘")
     @allure.title("验证是否出现绑定网盘弹窗")

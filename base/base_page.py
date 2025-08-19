@@ -480,6 +480,20 @@ class BasePage:
             logger.error(f"❌ Toast 等待超时 ({self.timeout}s) | 内容: '{message}'")
             return False
     
+    def get_toast_text(self) -> Optional[str]:
+        """
+        获取当前显示的 toast 文本
+        :return: toast 文本内容，未找到返回 None
+        """
+        try:
+            # Android 原生 toast 处理
+            toast_locator = (AppiumBy.XPATH, "//android.widget.Toast")
+            toast_element = WebDriverWait(self.driver, self.timeout).until(
+                EC.presence_of_element_located(toast_locator))
+            return toast_element.text
+        except Exception as e:
+            logger.error(f"异常信息：{e}")
+    
     def assert_desktop_visible(self, locators, timeout=None):
         """断言系统桌面可见"""
         
@@ -626,21 +640,6 @@ class BasePage:
         assert self.wait_for_element(locator, timeout, "visible"), \
             f"元素：{locator}不存在"
         logger.info(f"断言元素可见成功: {locator}")
-    
-    def assert_text_is_equal(self, input_text, displayed_text):
-        """
-        断言输入框文本与输入文本是否一致
-        :param displayed_text:
-        :param locator: id元组
-        :param input_text: 输入文本
-        :return:
-        """
-        try:
-            assert input_text == displayed_text
-        except AssertionError as e:
-            logger.error(f"断言元素值相同失败：{e}")
-        except StaleElementReferenceException:
-            logger.error(f"元素已经过时")
     
     def get_config_value(self, section, key, default=None):
         """获取配置值"""

@@ -101,15 +101,15 @@ class HomePage(BasePage):
             logger.warning(f"检查主页元素失败：{e}")
             return False
     
-    def assert_enter_details(self):
+    def get_text_long_enter_details(self):
         try:
-            self.wait_for_element(
-                self.bind_cloud_window
+            value = self.get_element_attribute(
+                self.bind_cloud_window,
+                "text"
             )
-            return True
+            return value
         except NoSuchElementException as e:
             logger.error(f"元素定位失败: {str(e)}")
-            return False
     
     def assert_bind_cloud_window(self):
         try:

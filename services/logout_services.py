@@ -1,11 +1,11 @@
 import logging
 
 from base.base_page import BasePage
-from locators.login_locators import LoginLocators
+from locators.nut_login_locators import NutLoginLocators
 from pages.nut_cloud_page.home_page import HomePage
 from utils.loactor_validator import LocatorValidator
 
-locators = LoginLocators()
+locators = NutLoginLocators()
 locator_validator = LocatorValidator()
 logger = logging.getLogger(__name__)
 

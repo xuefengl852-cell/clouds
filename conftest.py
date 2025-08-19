@@ -13,8 +13,8 @@ from appium import webdriver
 from loguru import logger
 
 from pages.home_clouds_page import HomeCloudsPage
+from pages.nut_cloud_page.nut_login_page import NutLoginPage
 # 从配置模块导入
-from pages.nut_cloud_page.login_page import LoginPage
 from utils.driver import init_driver
 
 # 获取项目根目录
@@ -431,7 +431,7 @@ def nut_cloud_login_page(setup):
 # 获取有效的登录凭证
 @pytest.fixture(scope="session")
 def logged_in_home_page(app_driver):
-    login_page = LoginPage(app_driver)
+    login_page = NutLoginPage(app_driver)
     home_page = login_page.login_successful()
     yield home_page
 

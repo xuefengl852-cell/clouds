@@ -14,4 +14,7 @@ locators:
     show_password: "hanvon.aebr.hanvondrive:id/showPass"
     #坚果云索引
     nuts_tore_index: 1
+    #返回按钮
     return_button: "hanvon.aebr.hanvondrive:id/bt_back"
+    #主页网盘公共标识ID
+    item_name: "hanvon.aebr.hanvondrive:id/itemNameTv"

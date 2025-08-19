@@ -4,7 +4,6 @@ from selenium.common import TimeoutException
 
 from base.base_page import BasePage
 from locators.home_clouds_locators import HomeCloudsLocators
-from pages.nut_cloud_page.login_page import LoginPage
 from services.logout_services import locator_validator
 from utils.test_data_loader import load_test_data
 
@@ -61,6 +60,7 @@ class HomeCloudsPage(BasePage):
                 self.get_home_id_locator(cloud_type),
                 "text"
             )
+            logger.info(f"{element_value}")
             return element_value
         
         except TimeoutException:
@@ -77,13 +77,3 @@ class HomeCloudsPage(BasePage):
             "baidu": self.baidu_home_id_locator
         }
         return locator_mapping.get(cloud_type.lower())
-    
-    def click_nut_cloud_login_successful(self, cloud_type='nut_cloud'):
-        try:
-            login_page = LoginPage(self.driver)
-            cloud_index = get_cloud_index(cloud_type)
-            result = self.click_nut_cloud(cloud_index)
-            assert result.assert_cloud_home_resource_id_visible(cloud_type), f"断言点击：{cloud_type}失败"
-            return login_page
-        except AssertionError:
-            logger.error(f"网盘：{cloud_type}点击失败")

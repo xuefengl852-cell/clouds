@@ -16,5 +16,6 @@ locators:
     bind_cloud_window: "hanvon.aebr.hanvondrive:id/dialog_title"
     #更多-视图模式
     more_view_window: "hanvon.aebr.hanvondrive:id/tv_display"
+    #坚果云网盘进入标识
     nut_file_id: "hanvon.aebr.hanvondrive:id/fileGridTv"
 
