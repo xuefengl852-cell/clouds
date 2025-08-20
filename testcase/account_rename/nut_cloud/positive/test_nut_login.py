@@ -33,6 +33,7 @@ class TestLoginScenarios:
             assert len(result.get_input_username_text()) == len(login_data['username']), f"断言账号长度相同失败"
             assert result.get_input_username_value() == login_data[
                 'username'], f"断言失败，输入用户名与获取用户名值不相同"
+            result.back()
     
     @allure.story("用户输入密码-掩码")
     @allure.title("验证输入不同长度、字符密码")
@@ -41,6 +42,7 @@ class TestLoginScenarios:
             result = nut_cloud_login_page.input_password(login_data['password'])
             assert len(result.get_input_password_text()) == len(login_data['password']), f"断言密码长度相同失败"
             assert all(char in ['●', '*', '•'] for char in result.get_input_password_text()), "掩码字符不符合预期"
+            result.back()
     
     @allure.story("用户点击返回按钮")
     @allure.title("验证点击返回按钮返回到绑定网盘主页")
@@ -56,15 +58,14 @@ class TestLoginScenarios:
             .input_password(login_data['password']) \
             .click_password_display_button()
         assert result.get_input_password_text() == login_data['password'], f"密码显示按钮点击失败"
+        result.back()
     
     @allure.story("用户取消登录")
     @allure.title("验证在登陆页面可点击取消")
-    def test_click_cancel_button(self, nut_cloud_login_page, setup):
+    def test_click_cancel_button(self, nut_cloud_login_page):
         with allure.step("取消登录"):
             result = nut_cloud_login_page.click_cancel_button()
             assert result.get_cloud_name_text() == '网盘', f"返回网盘主页失败"
-        with allure.step("重新进入网盘"):
-            setup.click_nut_cloud_login_successful()
     
     @allure.story("用户点击确定")
     @allure.title("验证点击确定是否弹出对应提示")
@@ -72,6 +73,7 @@ class TestLoginScenarios:
         with allure.step("确定登录"):
             result = nut_cloud_login_page.click_sure()
             assert result.get_toast_page_text() == '请输入您的账号', f"点击确定失败"
+            result.back()
     
     @allure.story("用户输入用户名点击返回")
     @allure.title("验证输入用户名后点击返回是否回到主页")
@@ -81,8 +83,6 @@ class TestLoginScenarios:
             assert result.get_input_username_value() == test_username, f"断言失败，输入用户名与获取用户名值不相同"
             result.click_return_button()
             assert result.get_cloud_name_text() == '网盘', f"返回网盘主页失败"
-        with allure.step("重新进入网盘"):
-            setup.click_nut_cloud_login_successful()
     
     @allure.story("用户输入密码点击返回")
     @allure.title("验证输入密码后点击返回是否回到主页")
@@ -93,8 +93,6 @@ class TestLoginScenarios:
             assert all(char in ['●', '*', '•'] for char in result.get_input_password_text()), "掩码字符不符合预期"
             result.click_return_button()
             assert result.get_cloud_name_text() == '网盘', f"返回网盘主页失败"
-        with allure.step("重新进入网盘"):
-            setup.click_nut_cloud_login_successful()
     
     @allure.story("用户输入账号，密码")
     @allure.title("验证用户输入账号后输入密码")
@@ -106,6 +104,7 @@ class TestLoginScenarios:
             result.input_password(test_password)
             assert len(result.get_input_password_text()) == len(test_password), f"断言密码长度相同失败"
             assert all(char in ['●', '*', '•'] for char in result.get_input_password_text()), "掩码字符不符合预期"
+            result.back()
     
     @allure.story("用户输入账号密码后点击取消登录")
     @allure.title("验证用户输入账号，输入密码，点击取消")
@@ -131,6 +130,7 @@ class TestLoginScenarios:
             assert result.get_input_password_text() == test_password, f"密码显示按钮点击失败"
             result.click_password_display_button()
             assert all(char in ['●', '*', '•'] for char in result.get_input_password_text()), "掩码字符不符合预期"
+            result.back()
     
     @allure.step("用户输入正确的账号密码进行登录")
     @allure.title("验证正确用户名密码登陆成功")

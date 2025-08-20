@@ -72,8 +72,11 @@ class HomePage(BasePage):
         return self
     
     def click_bind_cloud(self):
-        self.click(self.bind_cloud)
-        return self
+        try:
+            self.click(self.bind_cloud)
+        except Exception as e:
+            logger.error(f"异常信息：{e}")
+            raise
     
     def click_more_button(self):
         self.click(self.view_more)

@@ -44,7 +44,7 @@ class HomeCloudsPage(BasePage):
     def baidu_home_id_locator(self):
         return self.get_locator(locators.PAGE_SECTION, locators.BAIDU_HOME_CLOUD_ID)
     
-    def click_nut_cloud(self, index):
+    def click_nut_cloud(self, index=1):
         self.click_by_locator_index(
             self.public_resource_id_locator,
             index
@@ -77,3 +77,11 @@ class HomeCloudsPage(BasePage):
             "baidu": self.baidu_home_id_locator
         }
         return locator_mapping.get(cloud_type.lower())
+    
+    def click_nut_cloud_success(self, index=1):
+        home_clouds_page = HomeCloudsPage(self.driver)
+        self.click_by_locator_index(
+            self.public_resource_id_locator,
+            index
+        )
+        return home_clouds_page

@@ -255,13 +255,26 @@ def pytest_runtest_makereport(item, call):
     
     # 只在测试失败时处理（包括setup, call, teardown阶段）
     if report.failed:
-        # 查找driver实例
+        # 查找driver实例 - 从多个地方查找
         driver = None
+        
+        # 1. 首先尝试从fixture参数中查找
         for fixture_name in item.funcargs:
             fixture = item.funcargs[fixture_name]
-            if isinstance(fixture, webdriver.Remote):
+            if hasattr(fixture, 'driver') and isinstance(fixture.driver, webdriver.Remote):
+                driver = fixture.driver
+                break
+            elif isinstance(fixture, webdriver.Remote):
                 driver = fixture
                 break
+        
+        # 2. 如果没找到，尝试从item的config中查找
+        if driver is None and hasattr(item.config, 'driver'):
+            driver = item.config.driver
+        
+        # 3. 如果还没找到，尝试从模块或类属性中查找
+        if driver is None and hasattr(item, 'instance') and hasattr(item.instance, 'driver'):
+            driver = item.instance.driver
         
         if driver:
             try:
@@ -422,18 +435,19 @@ def setup(app_driver):  # 注意：这里移除了self参数
 
 
 @pytest.fixture(scope="function")
-def nut_cloud_login_page(setup):
-    nut_login_page = setup.click_nut_cloud_login_successful()
+def nut_cloud_login_page(app_driver, setup):
+    nut_login_page = NutLoginPage(app_driver)
+    setup.click_nut_cloud_success()
     yield nut_login_page
-    setup.back()
 
 
 # 获取有效的登录凭证
-@pytest.fixture(scope="session")
-def logged_in_home_page(app_driver):
+@pytest.fixture(scope="function")
+def logged_in_home_page(nut_cloud_login_page, app_driver):
     login_page = NutLoginPage(app_driver)
     home_page = login_page.login_successful()
     yield home_page
+    login_page.back()
 
 
 # 获取绑定网盘窗口页

@@ -6,8 +6,7 @@ from pathlib import Path
 from typing import ClassVar, Dict, Optional
 
 from appium.webdriver.common.appiumby import AppiumBy
-from selenium.common.exceptions import TimeoutException, InvalidElementStateException, StaleElementReferenceException, \
-    NoSuchElementException
+from selenium.common.exceptions import TimeoutException, InvalidElementStateException, StaleElementReferenceException
 from selenium.webdriver import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
@@ -238,10 +237,8 @@ class BasePage:
         except TimeoutException:
             error_msg = f"元素定位超时 ({timeout}s): {locator_type}='{locator_value}'"
             logger.error(error_msg)
-            # 添加截图
-            self.save_screenshot(f"element_timeout_{locator_value}")
-            # 关键修改：抛出 NoSuchElementException 而非返回 False
-            raise NoSuchElementException(error_msg)
+            # 不再尝试截图，让全局钩子处理
+            raise TimeoutException(error_msg)  # 重新抛出异常
         except Exception as e:
             logger.error(f"元素定位异常: {str(e)}")
             # 关键修改：抛出原始异常

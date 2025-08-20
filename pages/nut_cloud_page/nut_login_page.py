@@ -138,6 +138,7 @@ class NutLoginPage(BasePage):
         try:
             # 获取有效凭证
             login_data = self.get_valid_credentials('login_data_positive.json')
+            
             # 1. 初始化登录页面
             username = login_data["username"]
             password = login_data["password"]
@@ -155,3 +156,4 @@ class NutLoginPage(BasePage):
             return home_page
         except Exception as e:
             logger.error(f"异常信息：{e}")
+            raise
