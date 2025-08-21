@@ -13,6 +13,7 @@ from appium import webdriver
 from loguru import logger
 
 from pages.home_clouds_page import HomeCloudsPage
+from pages.nut_cloud_page.home_page import HomePage
 from pages.nut_cloud_page.nut_login_page import NutLoginPage
 # 从配置模块导入
 from utils.driver import init_driver
@@ -310,8 +311,12 @@ def pytest_runtest_makereport(item, call):
                                 img_bytes = img_bytes.getvalue()
                             
                             # 创建相对路径用于HTML报告
-                            rel_path = os.path.relpath(screenshot_path, os.path.dirname(item.config.option.htmlpath))
-                            
+                            if hasattr(item.config.option, 'htmlpath') and item.config.option.htmlpath:
+                                rel_path = os.path.relpath(screenshot_path,
+                                                           os.path.dirname(item.config.option.htmlpath))
+                            else:
+                                # 如果没有设置 htmlpath，使用绝对路径或默认路径
+                                rel_path = screenshot_path
                             # 添加到报告extra
                             report.extra = getattr(report, "extra", []) + [
                                 html.extras.image(img_bytes, "缩略图"),
@@ -428,26 +433,39 @@ def app_driver(request):
     driver.quit()
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope="session")
 def setup(app_driver):  # 注意：这里移除了self参数
     home_cloud_page = HomeCloudsPage(app_driver)
     yield home_cloud_page
 
 
-@pytest.fixture(scope="function")
-def nut_cloud_login_page(app_driver, setup):
-    nut_login_page = NutLoginPage(app_driver)
+@pytest.fixture(scope="session")
+def nut_cloud_logged(app_driver, setup):
     setup.click_nut_cloud_success()
-    yield nut_login_page
+    yield app_driver
+
+
+@pytest.fixture(scope="session")
+def logged_in_driver(nut_cloud_logged, app_driver):
+    """Session 范围的已登录 driver"""
+    login_page = NutLoginPage(app_driver)
+    home_page = login_page.login_successful()
+    yield app_driver
+
+
+@pytest.fixture(scope="function")
+def nut_cloud_login_page(logged_in_driver, app_driver):
+    home_page = HomePage(app_driver)
+    yield home_page
+    home_page.back()
 
 
 # 获取有效的登录凭证
-@pytest.fixture(scope="function")
-def logged_in_home_page(nut_cloud_login_page, app_driver):
-    login_page = NutLoginPage(app_driver)
-    home_page = login_page.login_successful()
+@pytest.fixture(scope="session")
+def logged_in_home_page(logged_in_driver, app_driver):
+    home_page = HomePage(app_driver)
     yield home_page
-    login_page.back()
+    home_page.back()
 
 
 # 获取绑定网盘窗口页

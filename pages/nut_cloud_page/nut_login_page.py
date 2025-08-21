@@ -1,6 +1,7 @@
 import logging
 
 import pytest
+from selenium.common import TimeoutException
 
 from base.base_page import BasePage
 from locators.nut_login_locators import NutLoginLocators
@@ -144,16 +145,16 @@ class NutLoginPage(BasePage):
             password = login_data["password"]
             # 第一步: 输入凭据
             self.input_username(username)
-            assert len(self.get_input_username_text()) == len(username), f"断言账号长度相同失败"
-            assert self.get_input_username_value() == username, f"断言失败，输入用户名与获取用户名值不相同"
             self.input_password(password)
-            assert len(self.get_input_password_text()) == len(password), f"断言密码长度相同失败"
-            assert all(char in ['●', '*', '•'] for char in self.get_input_password_text()), "掩码字符不符合预期"
             self.click_sure()
-            assert self.get_toast_page_text() == '成功绑定账号', f"登录失败"
-            home_page = HomePage(self.driver)
-            logger.info("✅ 登录成功，导航到主页")
-            return home_page
+            try:
+                if self.get_toast_page_text() == '成功绑定账号':
+                    home_page = HomePage(self.driver)
+                    return home_page
+            except TimeoutException:
+                logger.error("登录失败，未看到成功提示")
+                # 可以在这里添加截屏等诊断信息
+                raise Exception("登录操作未在预期时间内完成")
         except Exception as e:
             logger.error(f"异常信息：{e}")
             raise

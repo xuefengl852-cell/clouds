@@ -77,6 +77,7 @@ class HomePage(BasePage):
         except Exception as e:
             logger.error(f"异常信息：{e}")
             raise
+        return self
     
     def click_more_button(self):
         self.click(self.view_more)
@@ -114,6 +115,17 @@ class HomePage(BasePage):
         except NoSuchElementException as e:
             logger.error(f"元素定位失败: {str(e)}")
     
+    def get_text_click_bind_cloud(self):
+        try:
+            value = self.get_element_attribute(
+                self.bind_cloud_window,
+                "text"
+            )
+            logger.info(f"{value}")
+            return value
+        except NoSuchElementException as e:
+            logger.error(f"元素定位失败: {str(e)}")
+    
     def assert_bind_cloud_window(self):
         try:
             self.wait_for_element(
@@ -124,15 +136,27 @@ class HomePage(BasePage):
             logger.error(f"元素定位失败: {str(e)}")
             return False
     
-    def assert_more_window(self):
+    def get_text_click_more_window(self):
         try:
-            self.wait_for_element(
-                self.more_view_window
+            value = self.get_element_attribute(
+                self.more_view_window,
+                "text"
             )
-            return True
-        except AssertionError as e:
+            logger.info(f"{value}")
+            return value
+        except NoSuchElementException as e:
             logger.error(f"元素定位失败: {str(e)}")
-            return False
+    
+    def get_text_click_nut_cloud(self):
+        try:
+            value = self.get_element_attribute(
+                self.nut_file_id,
+                "text"
+            )
+            logger.info(f"{value}")
+            return value
+        except NoSuchElementException as e:
+            logger.error(f"元素定位失败: {str(e)}")
     
     def assert_click_enter_nut_cloud(self, text='我的坚果云'):
         try:
@@ -153,3 +177,12 @@ class HomePage(BasePage):
             return cloud_more_page
         except Exception as e:
             logger.error(f"点击更多按钮失败：{e}")
+    
+    def is_folder_with_text_present(self, text):
+        """
+        检查页面中是否存在包含指定文本的文件夹
+        :param text: 要查找的文本
+        :return: 布尔值，表示文本是否存在
+        """
+        folder_texts = self.get_all_folder_texts(locators.PAGE_SECTION, locators.NUT_FILE_ID)
+        return text in folder_texts

@@ -2,6 +2,7 @@ import logging
 import os
 import subprocess
 import time
+from datetime import datetime
 from pathlib import Path
 from typing import ClassVar, Dict, Optional
 
@@ -27,7 +28,7 @@ class BasePage:
     # 定位器类型映射
     LOCATOR_MAPPING = {
         "id": By.ID,
-        "xpath": By.XPATH,
+        "xpath": AppiumBy.XPATH,
         "class_name": By.CLASS_NAME,
         "css_selector": By.CSS_SELECTOR,
         "accessibility_id": AppiumBy.ACCESSIBILITY_ID,
@@ -414,6 +415,32 @@ class BasePage:
             # 记录其他异常并重新抛出
             raise logger.error(f"获取元素文本失败: {str(e)}")
     
+    def take_screenshot(self, name):
+        """
+        截取屏幕截图并保存
+        :param name: 截图名称
+        :return: 截图文件路径
+        """
+        try:
+            # 确保截图目录存在
+            screenshot_dir = os.path.join(os.getcwd(), "screenshots")
+            if not os.path.exists(screenshot_dir):
+                os.makedirs(screenshot_dir)
+            
+            # 生成截图文件路径
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            screenshot_path = os.path.join(screenshot_dir, f"{name}_{timestamp}.png")
+            
+            # 截屏
+            self.driver.save_screenshot(screenshot_path)
+            logger.info(f"截图已保存: {screenshot_path}")
+            
+            return screenshot_path
+        
+        except Exception as e:
+            logger.error(f"截图失败: {e}")
+            return None
+    
     def long_press(self, locator, duration=None, condition="visible", timeout=None):
         """
         长按元素
@@ -719,3 +746,31 @@ class BasePage:
             logger.error(f"按索引获取元素失败: locator={locator}, index={index}")
             # 关键修改：重新抛出异常
             raise
+    
+    def get_all_folder_texts(self, section, key):
+        """
+            获取页面中所有文件夹的文本内容
+            :param section: 定位器配置部分
+            :param key: 定位器键名
+            :return: 文本列表
+        """
+        try:
+            locator = self.get_locator(section, key)
+            logger.info(f"使用定位器: {locator}")
+            # 查找所有具有相同ID的文件夹元素
+            folders = self.driver.find_elements(*locator)
+            logger.info(f"找到 {len(folders)} 个文件夹元素")  # 提取每个文件夹的文本
+            texts = []
+            for folder in folders:
+                try:
+                    text = folder.get_attribute('text')
+                    if text:
+                        texts.append(text)
+                except StaleElementReferenceException:
+                    # 处理元素过时异常
+                    continue
+            logger.info(f"提取的文件夹文本: {texts}")
+            return texts
+        except Exception as e:
+            logger.error(f"获取文件夹文本失败: {e}")
+            return []
