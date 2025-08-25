@@ -4,4 +4,4 @@ locators:
     tv_display: "hanvon.aebr.hanvondrive:id/tv_display"
     #排序
     tv_sort: "hanvon.aebr.hanvondrive:id/tv_sort"
-    rl_one: "hanvon.aebr.hanvondrive:id/rl_one"
+    janNewfileTv: "hanvon.aebr.hanvondrive:id/janNewfileTv"

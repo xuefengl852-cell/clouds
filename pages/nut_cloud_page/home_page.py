@@ -172,8 +172,8 @@ class HomePage(BasePage):
     def click_more_button_workflow(self):
         try:
             cloud_more_page = CloudsMorePage(self.driver)
-            result = self.click(self.view_more)
-            assert result.assert_more_window(), f"进入更多弹窗失败"
+            self.click(self.view_more)
+            self.wait_for_element(self.more_view_window)
             return cloud_more_page
         except Exception as e:
             logger.error(f"点击更多按钮失败：{e}")

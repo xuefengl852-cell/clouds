@@ -12,6 +12,7 @@ from PIL import Image
 from appium import webdriver
 from loguru import logger
 
+from pages.clouds_more_page import CloudsMorePage
 from pages.home_clouds_page import HomeCloudsPage
 from pages.nut_cloud_page.home_page import HomePage
 from pages.nut_cloud_page.nut_login_page import NutLoginPage
@@ -468,17 +469,21 @@ def logged_in_home_page(logged_in_driver, app_driver):
     home_page.back()
 
 
+#
+
+
 # 获取绑定网盘窗口页
 @pytest.fixture(scope="function")
-def logged_in_details_page(logged_in_home_page):
+def logged_in_details_page(logged_in_home_page, app_driver):
     yield logged_in_home_page.long_press_cloud_fixture()
 
 
 @pytest.fixture(scope="function")
-def cloud_more_window(logged_in_home_page):
-    more_window = logged_in_home_page.click_more_button_workflow()
-    yield more_window
-    more_window
+def cloud_more_window(logged_in_home_page, app_driver):
+    more_page = CloudsMorePage(app_driver)
+    logged_in_home_page.click_more_button_workflow()
+    yield more_page
+    more_page.back()
 
 
 # 获取账户信息页

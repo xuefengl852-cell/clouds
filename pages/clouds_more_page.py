@@ -26,8 +26,8 @@ class CloudsMorePage(BasePage):
         return self.get_locator(locators.PAGE_SECTION, locators.TV_SORT)
     
     @property
-    def rl_one(self):
-        return self.get_locator(locators.PAGE_SECTION, locators.RL_ONE)
+    def jan_newfile_tv(self):
+        return self.get_locator(locators.PAGE_SECTION, locators.JAN_NEWFILE_TV)
     
     def click_view_button(self):
         self.click(self.tv_display)
@@ -35,6 +35,7 @@ class CloudsMorePage(BasePage):
     
     def click_list_button(self):
         self.click(self.tv_display)
+        return self
     
     def click_sort_button(self):
         self.click(self.tv_sort)
@@ -64,3 +65,14 @@ class CloudsMorePage(BasePage):
         except Exception as e:
             logger.error(f"检查元素可见性时出错: {str(e)}")
             return False
+    
+    def get_sort_window_text(self):
+        try:
+            sort_value = self.get_input_value_by_id(
+                self.jan_newfile_tv,
+                "text"
+            )
+            return sort_value
+        except Exception as e:
+            logger.error(f"检查元素可见性时出错: {str(e)}")
+            raise
