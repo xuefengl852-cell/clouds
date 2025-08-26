@@ -1,0 +1,10 @@
+class CloudSortLocators:
+    PAGE_SECTION = "sort"
+    ADD_TIME = "add_time"
+    NAME = "name"
+    TYPE = "type"
+    ASC = "ascending_order"
+    DESC = "descending_order"
+    CLOUD = "cloud"
+    CANCEL = "cancel"
+    SURE = "sure"

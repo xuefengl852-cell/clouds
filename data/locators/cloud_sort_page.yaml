@@ -1,0 +1,18 @@
+locators:
+  sort:
+    #添加时间
+    add_time: "hanvon.aebr.hanvondrive:id/timeCheckBox"
+    #名称
+    name: "hanvon.aebr.hanvondrive:id/nameCheckBox"
+    #类型
+    type: "hanvon.aebr.hanvondrive:id/typeCheckBox"
+    #升序
+    ascending_order: "hanvon.aebr.hanvondrive:id/asceCheckBox"
+    #降序
+    descending_order: "hanvon.aebr.hanvondrive:id/descCheckBox"
+    #网盘主页标识
+    cloud: "hanvon.aebr.hanvondrive:id/bt_back"
+    #确定
+    cancel: "hanvon.aebr.hanvondrive:id/sortcancel"
+    #取消
+    sure: "hanvon.aebr.hanvondrive:id/sortsure"

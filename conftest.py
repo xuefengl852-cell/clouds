@@ -12,6 +12,7 @@ from PIL import Image
 from appium import webdriver
 from loguru import logger
 
+from pages.cloud_sort_page import CloudSortPage
 from pages.clouds_more_page import CloudsMorePage
 from pages.home_clouds_page import HomeCloudsPage
 from pages.nut_cloud_page.home_page import HomePage
@@ -466,7 +467,6 @@ def nut_cloud_login_page(logged_in_driver, app_driver):
 def logged_in_home_page(logged_in_driver, app_driver):
     home_page = HomePage(app_driver)
     yield home_page
-    home_page.back()
 
 
 #
@@ -486,17 +486,21 @@ def cloud_more_window(logged_in_home_page, app_driver):
     more_page.back()
 
 
+@pytest.fixture(scope="function")
+def cloud_sort_button(logged_in_home_page, app_driver):
+    more_page = CloudsMorePage(app_driver)
+    logged_in_home_page.click_more_button_workflow()
+    cloud_sort_page = CloudSortPage(app_driver)
+    more_page.click_sort_button_success()
+    yield cloud_sort_page
+
+
 # 获取账户信息页
 @pytest.fixture(scope="function")
 def logged_in_account_information_page(logged_in_details_page):
-    try:
-        # 使用新的导航方法
-        account_info_page = logged_in_details_page.navigate_to_account_information()
-        return account_info_page
-    except Exception as e:
-        logger.error(f"账户信息页加载失败: {str(e)}")
-        logged_in_details_page.driver.save_screenshot("account_info_page_load_failure.png")
-        pytest.fail(f"无法加载账户信息页: {str(e)}")
+    # 使用新的导航方法
+    account_info_page = logged_in_details_page.navigate_to_account_information()
+    return account_info_page
 
 
 # 获取重命名页

@@ -20,7 +20,6 @@ class NutLoginPage(BasePage):
     
     def __init__(self, driver):
         super().__init__(driver)
-        logger.info(f"初始化登录页面: {self.__class__.__name__}")
         # 验证必需的定位器配置
         locator_validator.validate(self)
     

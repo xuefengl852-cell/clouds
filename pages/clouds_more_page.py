@@ -76,3 +76,13 @@ class CloudsMorePage(BasePage):
         except Exception as e:
             logger.error(f"检查元素可见性时出错: {str(e)}")
             raise
+    
+    def click_sort_button_success(self):
+        try:
+            result = self.click(self.tv_sort)
+            result.wait_for_element(
+                self.jan_newfile_tv
+            )
+        except Exception as e:
+            logger.error(f"异常信息：{e}")
+            raise
