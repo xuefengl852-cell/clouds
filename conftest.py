@@ -15,6 +15,8 @@ from loguru import logger
 from pages.cloud_sort_page import CloudSortPage
 from pages.clouds_more_page import CloudsMorePage
 from pages.home_clouds_page import HomeCloudsPage
+from pages.nut_cloud_page.account_information_page import AccountInformationPage
+from pages.nut_cloud_page.details_page import DetailsPage
 from pages.nut_cloud_page.home_page import HomePage
 from pages.nut_cloud_page.nut_login_page import NutLoginPage
 # 从配置模块导入
@@ -451,7 +453,7 @@ def nut_cloud_logged(app_driver, setup):
 def logged_in_driver(nut_cloud_logged, app_driver):
     """Session 范围的已登录 driver"""
     login_page = NutLoginPage(app_driver)
-    home_page = login_page.login_successful()
+    login_page.login_successful()
     yield app_driver
 
 
@@ -469,13 +471,11 @@ def logged_in_home_page(logged_in_driver, app_driver):
     yield home_page
 
 
-#
-
-
-# 获取绑定网盘窗口页
 @pytest.fixture(scope="function")
-def logged_in_details_page(logged_in_home_page, app_driver):
-    yield logged_in_home_page.long_press_cloud_fixture()
+def logged_in_details_page(logged_in_driver, logged_in_home_page, app_driver):
+    details_page = DetailsPage(app_driver)
+    logged_in_home_page.long_press_cloud_success()
+    yield details_page
 
 
 @pytest.fixture(scope="function")
@@ -497,10 +497,11 @@ def cloud_sort_button(logged_in_home_page, app_driver):
 
 # 获取账户信息页
 @pytest.fixture(scope="function")
-def logged_in_account_information_page(logged_in_details_page):
+def logged_in_account_information_page(logged_in_details_page, app_driver):
+    account_information_page = AccountInformationPage(app_driver)
     # 使用新的导航方法
-    account_info_page = logged_in_details_page.navigate_to_account_information()
-    return account_info_page
+    logged_in_details_page.navigate_to_account_information()
+    return account_information_page
 
 
 # 获取重命名页

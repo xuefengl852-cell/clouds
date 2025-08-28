@@ -45,19 +45,23 @@ class DetailsPage(BasePage):
         try:
             self.click(self.close_button)
         except Exception as e:
-            logger.warning(f"未找到当前元素：{e}")
+            logger.error(f"未找到当前元素：{e}")
+            raise
+        return self
     
     def click_account_button(self):
         try:
             self.click(self.account_button)
         except Exception as e:
             logger.warning(f"未找到当前元素：{e}")
+        return self
     
     def click_rename_button(self):
         try:
             self.click(self.rename_button)
         except Exception as e:
             logger.warning(f"未找到当前元素：{e}")
+        return self
     
     def assert_click_rename_button(self):
         try:
@@ -67,28 +71,42 @@ class DetailsPage(BasePage):
             logger.warning(f"未找到当前元素：{e}")
             return False
     
-    def assert_click_account_button(self):
+    def get_rename_window_text(self):
         try:
-            self.find_by_id(self.account_unbind)
-            return True
+            rename_text = self.get_element_attribute(
+                self.rename_window,
+                "text"
+            )
+            return rename_text
         except Exception as e:
-            logger.warning(f"未找到当前元素：{e}")
-            return False
+            logger.error(f"未找到当前元素：{e}")
+            raise
     
-    def assert_click_close_button(self):
+    def get_account_unbind_text(self):
         try:
-            self.find_by_id(self.nut_cloud)
-            return True
+            unbind_text = self.get_element_attribute(
+                self.account_unbind,
+                "text"
+            )
+            return unbind_text
         except Exception as e:
-            logger.warning(f"元素定位失败：{e}")
+            logger.error(f"未找到当前元素：{e}")
+            raise
+    
+    def verify_return_home(self):
+        try:
+            element = self.wait_for_element(
+                self.nut_cloud
+            )
+            return element is not None
+        except Exception as e:
+            logger.error(f"元素定位失败：{e}")
             return False
     
     def navigate_to_account_information(self):
         try:
             self.click_account_button()
-            if self.assert_click_account_button():
-                logger.info(f"已返回到账户信息页")
-                return AccountInformationPage(self.driver)
+            return AccountInformationPage(self.driver)
         except Exception as e:
             logger.error(f"导航到账户信息页面失败: {str(e)}")
             raise RuntimeError(f"无法导航到账户信息页面: {str(e)}")

@@ -23,52 +23,117 @@ class AccountInformationPage(BasePage):
         return self.get_locator(locators.PAGE_SECTION, locators.UNBIND_BUTTON)
     
     @property
-    def assert_bind_cloud(self):
+    def bind_cloud(self):
         return self.get_locator(locators.PAGE_SECTION, locators.BIND_CLOUD)
     
     @property
-    def assert_account_input(self):
-        return self.get_locator(locators.PAGE_SECTION, locators.ACCOUNT_INPUT)
+    def account_rename(self):
+        return self.get_locator(locators.PAGE_SECTION, locators.ACCOUNT_RENAME)
     
     @property
-    def assert_unbind_title(self):
+    def unbind_title(self):
         return self.get_locator(locators.PAGE_SECTION, locators.UNBIND_TITLE)
+    
+    @property
+    def sure_button(self):
+        return self.get_locator(locators.PAGE_SECTION, locators.SURE_BUTTON)
+    
+    @property
+    def cancel_button(self):
+        return self.get_locator(locators.PAGE_SECTION, locators.CANCEL_BUTTON)
+    
+    @property
+    def nut_cloud_bind(self):
+        return self.get_locator(locators.PAGE_SECTION, locators.NUT_CLOUD_BIND)
     
     def click_return_button(self):
         try:
             self.click(self.return_button)
         except Exception as e:
             logger.warning(f"未找到当前元素：{e}")
+        return self
     
     def click_edit_button(self):
         try:
             self.click(self.edit_button)
         except Exception as e:
-            logger.warning(f"未找到当前元素：{e}")
+            logger.error(f"未找到当前元素：{e}")
+        return self
     
     def click_unbind_button(self):
         try:
             self.click(self.unbind_button)
         except Exception as e:
-            logger.warning(f"未找到当前元素：{e}")
+            logger.error(f"未找到当前元素：{e}")
+        return self
     
-    def assert_click_return_button(self):
+    def click_unbind_sure_button(self):
         try:
-            assert self.find_by_id(self.assert_bind_cloud), f"返回主页失败"
+            self.click(self.sure_button)
+        except Exception as e:
+            logger.error(f"未找到当前元素：{e}")
+        return self
+    
+    def click_unbind_cancel_button(self):
+        try:
+            self.click(self.cancel_button)
+        except Exception as e:
+            logger.error(f"未找到当前元素：{e}")
+        return self
+    
+    def get_bind_cloud_text(self):
+        try:
+            bind_cloud_text = self.get_input_value_by_id(
+                self.bind_cloud,
+                "text"
+            )
+            return bind_cloud_text
         except Exception as e:
             logger.warning(f"验证失败，未找到当前元素：{e}")
             raise
     
-    def assert_click_edit_button(self):
+    def get_account_rename_text(self):
         try:
-            assert self.find_by_id(self.assert_account_input), f"进入账户编辑页失败"
+            account_rename_text = self.get_input_value_by_id(
+                self.account_rename,
+                "text"
+            )
+            return account_rename_text
         except Exception as e:
             logger.warning(f"验证失败，未找到当前元素：{e}")
             raise
     
-    def assert_click_unbind_button(self):
+    def get_unbind_window_text(self):
         try:
-            assert self.find_by_id(self.assert_unbind_title), f"进入解绑提示页失败"
+            unbind_window_text = self.get_input_value_by_id(
+                self.unbind_title,
+                "text"
+            )
+            return unbind_window_text
         except Exception as e:
             logger.warning(f"验证失败，未找到当前元素：{e}")
             raise
+    
+    def verify_return_account(self):
+        try:
+            element = self.wait_for_element(
+                self.return_button
+            )
+            return element is not None
+        except Exception as e:
+            logger.error(f"验证失败，未找到当前元素：{e}")
+            return False
+            raise
+        return self
+    
+    def verify_unbind_success(self):
+        try:
+            element = self.wait_for_element(
+                self.nut_cloud_bind
+            )
+            return element is not None
+        except Exception as e:
+            logger.error(f"验证失败，未找到当前元素：{e}")
+            return False
+            raise
+        return self

@@ -238,8 +238,7 @@ class BasePage:
         except TimeoutException:
             error_msg = f"元素定位超时 ({timeout}s): {locator_type}='{locator_value}'"
             logger.error(error_msg)
-            # 不再尝试截图，让全局钩子处理
-            raise TimeoutException(error_msg)  # 重新抛出异常
+            return None
         except Exception as e:
             logger.error(f"元素定位异常: {str(e)}")
             # 关键修改：抛出原始异常
@@ -774,3 +773,12 @@ class BasePage:
         except Exception as e:
             logger.error(f"获取文件夹文本失败: {e}")
             return []
+    
+    def _safe_navigate_back(self, max_attempts=3):
+        """安全地导航返回，处理可能的异常"""
+        for attempt in range(max_attempts):
+            try:
+                self.back()
+                time.sleep(1)  # 等待页面加载
+            except Exception as e:
+                logger.error(f"返回异常：{e}")

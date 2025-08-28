@@ -56,7 +56,7 @@ class HomePage(BasePage):
     def nut_file_id(self):
         return self.get_locator(locators.PAGE_SECTION, locators.NUT_FILE_ID)
     
-    def long_press_cloud_fixture(self):
+    def long_press_cloud_success(self):
         """使用登录页传递的driver检查主页元素"""
         try:
             details_page = DetailsPage(self.driver)

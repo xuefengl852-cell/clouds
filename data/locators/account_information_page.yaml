@@ -8,7 +8,12 @@ locators:
     unbind_button: "hanvon.aebr.hanvondrive:id/unbindTv"
     #绑定网盘按钮
     bind_cloud: "hanvon.aebr.hanvondrive:id/tv_drive_type"
-    #账户信息输入框
-    account_input: "hanvon.aebr.hanvondrive:id/nutcloudEt"
+    #解绑提示弹窗
+    account_rename: "hanvon.aebr.hanvondrive:id/janNewfileTv"
     #解绑按钮
     unbind_title: "hanvon.aebr.hanvondrive:id/title"
+    #取消解绑
+    cancel: "hanvon.aebr.hanvondrive:id/cancel"
+    #确定解绑
+    sure: "hanvon.aebr.hanvondrive:id/confirm"
+    nut_cloud_bind: "hanvon.aebr.hanvondrive:id/bt_back"
