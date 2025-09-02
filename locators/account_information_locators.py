@@ -9,3 +9,7 @@ class AccountInformationLocators:
     UNBIND_TITLE = "unbind_title"
     SURE_BUTTON = "sure"
     NUT_CLOUD_BIND = "nut_cloud_bind"
+    ACCOUNT_INPUT = "account_input"
+    DELETE_NAME = "delete_name"
+    CANCEL_RENAME = "cancel_rename"
+    SURE_RENAME = "sure_rename"

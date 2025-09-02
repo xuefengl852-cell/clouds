@@ -16,4 +16,13 @@ locators:
     cancel: "hanvon.aebr.hanvondrive:id/cancel"
     #确定解绑
     sure: "hanvon.aebr.hanvondrive:id/confirm"
+    #首页返回
     nut_cloud_bind: "hanvon.aebr.hanvondrive:id/bt_back"
+    #编辑账户名称输入框
+    account_input: "hanvon.aebr.hanvondrive:id/nutcloudEt"
+    #编辑账户名称输入框回退按钮
+    delete_name: "hanvon.aebr.hanvondrive:id/deleteTv"
+    #取消编辑
+    cancel_rename: "hanvon.aebr.hanvondrive:id/nickNamecancel"
+    #确定编辑
+    sure_rename: "hanvon.aebr.hanvondrive:id/nickNamesure"

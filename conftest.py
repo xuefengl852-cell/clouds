@@ -466,21 +466,21 @@ def nut_cloud_login_page(logged_in_driver, app_driver):
 
 # 获取有效的登录凭证
 @pytest.fixture(scope="session")
-def logged_in_home_page(logged_in_driver, app_driver):
-    home_page = HomePage(app_driver)
+def logged_in_home_page(logged_in_driver):
+    home_page = HomePage(logged_in_driver)
     yield home_page
 
 
 @pytest.fixture(scope="function")
-def logged_in_details_page(logged_in_driver, logged_in_home_page, app_driver):
-    details_page = DetailsPage(app_driver)
+def logged_in_details_page(logged_in_driver, logged_in_home_page):
+    details_page = DetailsPage(logged_in_home_page.driver)
     logged_in_home_page.long_press_cloud_success()
     yield details_page
 
 
 @pytest.fixture(scope="function")
-def cloud_more_window(logged_in_home_page, app_driver):
-    more_page = CloudsMorePage(app_driver)
+def cloud_more_window(logged_in_home_page):
+    more_page = CloudsMorePage(logged_in_home_page.driver)
     logged_in_home_page.click_more_button_workflow()
     yield more_page
     more_page.back()
@@ -497,11 +497,20 @@ def cloud_sort_button(logged_in_home_page, app_driver):
 
 # 获取账户信息页
 @pytest.fixture(scope="function")
-def logged_in_account_information_page(logged_in_details_page, app_driver):
-    account_information_page = AccountInformationPage(app_driver)
+def logged_in_account_information_page(logged_in_details_page):
+    account_information_page = AccountInformationPage(logged_in_details_page.driver)
     # 使用新的导航方法
     logged_in_details_page.navigate_to_account_information()
     return account_information_page
+
+
+@pytest.fixture(scope="function")
+def logged_in_account_edit_page(logged_in_account_information_page, app_driver):
+    edit_account_modal = logged_in_account_information_page.EditAccountModal(
+        logged_in_account_information_page.driver
+    )
+    edit_account_edit = edit_account_modal.click_edit_button()
+    return edit_account_edit
 
 
 # 获取重命名页
