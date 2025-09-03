@@ -60,34 +60,63 @@ class AccountRenamePage(BasePage):
         self.back()
         return self
     
-    def assert_return_home(self):
-        self.assert_element_visible(self.tv_account)
+    def verify_return_home(self):
+        try:
+            tv_account = self.wait_for_element(self.tv_account)
+            return tv_account is not None
+        except Exception as e:
+            logger.error(f"导航到账户信息页面失败: {str(e)}")
+            raise
         return self
     
-    def assert_input_text(self, expect):
-        account = self.get_text_by_id(self.account_name)
-        """
-        断言输入文本与预期文本
-        :param expect:
-        :return:
-        """
-        logger.info(f"账户名称文本值为：{account}")
-        self.assert_text_is_equal(account, expect)
+    def verify_input_text(self):
+        try:
+            account_name = self.get_element_attribute(
+                self.account_name,
+                "text"
+            )
+            return account_name
+        except Exception as e:
+            logger.error(f"导航到账户信息页面失败: {str(e)}")
+            raise
         return self
     
-    def assert_rename_success_toast(self, toast):
-        """
-        断言toast提示存在
-        :param toast:
-        :return:
-        """
-        self.assert_toast(
-            toast
-        )
+    def verify_home_cloud_name(self):
+        try:
+            account_name = self.get_element_attribute(
+                self.tv_account,
+                "text"
+            )
+            return account_name
+        except Exception as e:
+            logger.error(f"导航到账户信息页面失败: {str(e)}")
+            raise
+        return self
+    
+    def verify_rename_success_toast(self, toast):
+        try:
+            self.assert_toast(
+                toast
+            )
+        except Exception as e:
+            logger.error(f"导航到账户信息页面失败: {str(e)}")
+            raise
         return self
     
     def assert_details_account_name(self, expect):
         account = self.get_text_by_id(self.tv_account)
         logger.info(f"账户名称文本值为：{account}")
         self.assert_text_is_equal(account, expect)
+        return self
+    
+    def verify_input_account_name(self):
+        try:
+            account_name = self.get_element_attribute(
+                self.account_name,
+                "text"
+            )
+            return account_name
+        except Exception as e:
+            logger.error(f"导航到账户信息页面失败: {str(e)}")
+            raise
         return self

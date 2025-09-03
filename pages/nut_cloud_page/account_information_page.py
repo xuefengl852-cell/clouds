@@ -144,19 +144,6 @@ class AccountInformationPage(BasePage):
             raise
         return self
     
-    def verify_return_home_information(self):
-        try:
-            element = self.wait_for_element(
-                self.bind_cloud
-            )
-            return element is not None
-        except TimeoutException:
-            logger.error(f"返回按钮未在{self.timeout}秒内可见")
-            return False
-        except Exception as e:
-            logger.error("检查返回按钮可见性时发生意外错误: {}".format(e))
-            raise
-    
     class EditAccountModal(BasePage):
         
         CONFIG_PATH = "data/locators/account_information_page.yaml"
