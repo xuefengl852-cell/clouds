@@ -13,3 +13,5 @@ class NutLoginLocators:
     NUTS_TORE_INDEX = "nuts_tore_index"
     RETURN_BUTTON = "return_button"
     ITEM_NAME = "item_name"
+    BIND_CLOUD = "bind_cloud"
+    NUT_CLOUD = "nut_cloud"

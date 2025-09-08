@@ -56,6 +56,14 @@ class NutLoginPage(BasePage):
     def item_name(self):
         return self.get_locator(locators.PAGE_SECTION, locators.ITEM_NAME)
     
+    @property
+    def nut_cloud(self):
+        return self.get_locator(locators.PAGE_SECTION, locators.NUT_CLOUD)
+    
+    @property
+    def bind_cloud(self):
+        return self.get_locator(locators.PAGE_SECTION, locators.BIND_CLOUD)
+    
     def click_return_button(self):
         self.click(self.return_button)
         return self
@@ -80,6 +88,22 @@ class NutLoginPage(BasePage):
     
     def click_sure(self):
         self.click(self.sure_button)
+        return self
+    
+    def click_nut_cloud(self):
+        try:
+            self.click(self.nut_cloud)
+        except Exception as e:
+            logger.error(f"异常信息：{e}")
+            raise
+        return self
+    
+    def click_bind_cloud(self):
+        try:
+            self.click(self.bind_cloud)
+        except Exception as e:
+            logger.error(f"异常信息：{e}")
+            raise
         return self
     
     def get_input_username_value(self):
@@ -157,3 +181,12 @@ class NutLoginPage(BasePage):
         except Exception as e:
             logger.error(f"异常信息：{e}")
             raise
+    
+    def logged_in_successful(self):
+        try:
+            self.click_bind_cloud()
+            self.click_nut_cloud()
+        except TimeoutException:
+            logger.error("登录失败，未看到成功提示")
+            # 可以在这里添加截屏等诊断信息
+            raise Exception("登录操作未在预期时间内完成")

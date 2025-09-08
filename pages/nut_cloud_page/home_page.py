@@ -186,3 +186,86 @@ class HomePage(BasePage):
         """
         folder_texts = self.get_all_folder_texts(locators.PAGE_SECTION, locators.NUT_FILE_ID)
         return text in folder_texts
+    
+    class HomeBindCloud(BasePage):
+        CONFIG_PATH = "data/locators/account_information_page.yaml"
+        
+        def __init__(self, driver):
+            super().__init__(driver)
+            logger.info(f"进入主页")
+            locator_validator.validate(self)
+        
+        @property
+        def bind_cloud(self):
+            return self.get_locator(locators.PAGE_SECTION, locators.BIND_CLOUD)
+        
+        @property
+        def rb_ali(self):
+            return self.get_locator(locators.PAGE_SECTION, locators.RB_ALI)
+        
+        @property
+        def rb_nut(self):
+            return self.get_locator(locators.PAGE_SECTION, locators.RB_NUT)
+        
+        @property
+        def rb_onedrive(self):
+            return self.get_locator(locators.PAGE_SECTION, locators.RB_ONEDRIVE)
+        
+        @property
+        def rb_webdav(self):
+            return self.get_locator(locators.PAGE_SECTION, locators.RB_WEBDAV)
+        
+        @property
+        def rb_baidu(self):
+            return self.get_locator(locators.PAGE_SECTION, locators.RB_BAIDU)
+        
+        def click_ali_cloud(self):
+            try:
+                self.click(self.rb_ali)
+            except Exception as e:
+                logger.error({e})
+                raise
+        
+        def click_nut_cloud(self):
+            try:
+                self.click(self.rb_nut)
+            except Exception as e:
+                logger.error({e})
+                raise
+        
+        def click_onedrive_cloud(self):
+            try:
+                self.click(self.rb_onedrive)
+            except Exception as e:
+                logger.error({e})
+                raise
+        
+        def click_webdav_cloud(self):
+            try:
+                self.click(self.rb_webdav)
+            except Exception as e:
+                logger.error({e})
+                raise
+        
+        def click_baidu_cloud(self):
+            try:
+                self.click(self.rb_baidu)
+            except Exception as e:
+                logger.error({e})
+                raise
+        
+        def click_bind_cloud(self):
+            try:
+                self.click(self.bind_cloud)
+            except Exception as e:
+                logger.error(f"异常信息：{e}")
+                raise
+            return self
+        
+        def bind_nut_cloud(self):
+            try:
+                self.click(self.bind_cloud)
+                self.click_nut_cloud()
+            except Exception as e:
+                logger.error(f"{e}")
+                raise

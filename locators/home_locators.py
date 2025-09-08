@@ -12,3 +12,8 @@ class HomeLocators:
     BIND_CLOUD_WINDOWS = "bind_cloud_window"
     MORE_VIEW_WINDOW = "more_view_window"
     NUT_FILE_ID = "nut_file_id"
+    RB_ALI = "rb_ali"
+    RB_NUT = "rb_nut"
+    RB_ONEDRIVE = "rb_onedrive"
+    RB_WEBDAV = "rb_webdav"
+    RB_BAIDU = "rb_baidu"

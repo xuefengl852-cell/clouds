@@ -18,3 +18,7 @@ locators:
     return_button: "hanvon.aebr.hanvondrive:id/bt_back"
     #主页网盘公共标识ID
     item_name: "hanvon.aebr.hanvondrive:id/itemNameTv"
+    #绑定网盘
+    bind_cloud: "hanvon.aebr.hanvondrive:id/tv_drive_type"
+    #坚果云网盘
+    nut_cloud: "hanvon.aebr.hanvondrive:id/rb_nut"
