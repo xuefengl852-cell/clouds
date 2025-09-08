@@ -5,6 +5,7 @@ import subprocess
 from datetime import datetime
 from io import BytesIO
 from logging.handlers import TimedRotatingFileHandler
+from typing import Callable, List
 
 import allure
 import pytest
@@ -36,10 +37,6 @@ logger = logging.getLogger(__name__)
 
 
 def custom_log_namer(default_name):
-    """
-    自定义日志文件命名格式
-    将默认的 pytest.log.2025-08-05 改为 pytest_2025-08-05.log
-    """
     base, ext = os.path.splitext(default_name)
     if not ext:  # 如果默认没有扩展名
         return default_name
@@ -61,7 +58,7 @@ def pytest_configure(config):
     os.makedirs(log_dir, exist_ok=True)
     
     # 创建按天轮转的日志处理器
-    log_file = os.path.join(log_dir, "pytest.log")  # 基础日志文件名
+    log_file = os.path.join(log_dir, "pytest1.log")  # 基础日志文件名
     
     # 创建 TimedRotatingFileHandler - 使用本地时间
     file_handler = TimedRotatingFileHandler(
@@ -422,7 +419,7 @@ def clean_database(device_id=None):
             logger.warning(f"⚠️ 文件检查异常: {check_result.stderr.strip()}")
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="class")
 def app_driver(request):
     # 获取命令行参数
     device_id = request.config.getoption("--device-id", default=None)
@@ -437,19 +434,19 @@ def app_driver(request):
     driver.quit()
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="class")
 def setup(app_driver):  # 注意：这里移除了self参数
     home_cloud_page = HomeCloudsPage(app_driver)
     yield home_cloud_page
 
 
-@pytest.fixture(scope="session")
-def nut_cloud_logged(app_driver, setup):
+@pytest.fixture(scope="class")
+def nut_cloud_logged(setup):
     setup.click_nut_cloud_success()
     yield app_driver
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="class")
 def logged_in_driver(nut_cloud_logged, app_driver):
     """Session 范围的已登录 driver"""
     login_page = NutLoginPage(app_driver)
@@ -458,14 +455,13 @@ def logged_in_driver(nut_cloud_logged, app_driver):
 
 
 @pytest.fixture(scope="function")
-def nut_cloud_login_page(logged_in_driver, app_driver):
-    home_page = HomePage(app_driver)
+def nut_cloud_login_page(logged_in_driver):
+    home_page = HomePage(logged_in_driver)
     yield home_page
-    home_page.back()
 
 
 # 获取有效的登录凭证
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="class")
 def logged_in_home_page(logged_in_driver):
     home_page = HomePage(logged_in_driver)
     yield home_page
@@ -537,3 +533,42 @@ def logged_in_account_rename_page(logged_in_details_page):
     except Exception as e:
         logger.error(f"账户信息页加载失败: {str(e)}")
         pytest.fail(f"无法加载账户信息页: {str(e)}")
+
+
+@pytest.fixture(scope="function")
+def nut_cloud_login(setup):
+    nut_login_page = NutLoginPage(setup.driver)
+    setup.click_nut_cloud_success()
+    
+    # 存储清理函数的列表
+    cleanup_actions: List[Callable] = []
+    
+    # 提供注册清理函数的方法
+    nut_login_page.register_cleanup = lambda func: cleanup_actions.append(func)
+    
+    # 使用简单的布尔标志而不是列表
+    skip_default_cleanup = False
+    
+    # 提供设置跳过默认清理的方法
+    def set_skip_default_cleanup():
+        nonlocal skip_default_cleanup
+        skip_default_cleanup = True
+    
+    nut_login_page.set_skip_default_cleanup = set_skip_default_cleanup
+    
+    yield nut_login_page
+    
+    # 执行所有注册的清理动作
+    for cleanup_action in cleanup_actions:
+        try:
+            cleanup_action()
+        except Exception as e:
+            pytest.fail(f"清理动作执行失败: {str(e)}")
+    
+    # 在所有自定义清理完成后，检查是否需要执行默认清理
+    if not skip_default_cleanup:
+        try:
+            nut_login_page.navigate_back(1)
+        except Exception as e:
+            # 建议至少记录日志，而不是完全忽略异常
+            print(f"默认清理失败: {e}")

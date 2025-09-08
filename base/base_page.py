@@ -782,3 +782,7 @@ class BasePage:
                 time.sleep(1)  # 等待页面加载
             except Exception as e:
                 logger.error(f"返回异常：{e}")
+    
+    def navigate_back(self, steps):
+        # 公共方法封装内部实现
+        self._safe_navigate_back(steps)

@@ -144,6 +144,14 @@ class AccountInformationPage(BasePage):
             raise
         return self
     
+    def unbind_nut_cloud_success(self):
+        try:
+            self.click(self.unbind_button)
+            self.click(self.sure_button)
+        except Exception as e:
+            logger.error({e})
+            raise
+    
     class EditAccountModal(BasePage):
         
         CONFIG_PATH = "data/locators/account_information_page.yaml"
