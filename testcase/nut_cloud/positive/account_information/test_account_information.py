@@ -99,7 +99,7 @@ class TestAccountInformationScenarios:
     def test_click_return_button(self, logged_in_account_information_page):
         with allure.step("点击返回按钮"):
             result = logged_in_account_information_page.click_return_button()
-            assert result.verify_return_home_information(), f"返回到主页失败"
+            assert result.verify_return_home_page(), f"返回到主页失败"
     
     @allure.story("用户点击名称编辑按钮")
     @allure.title("验证是否进入编辑按钮界面")

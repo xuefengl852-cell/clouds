@@ -207,7 +207,7 @@ def screen_recording(request):
     try:
         # 设置录制参数
         video_options = {
-            "timeLimit": 300,  # 5分钟限制
+            "timeLimit": 600,  # 5分钟限制
             "bitRate": 4000000,  # 4 Mbps
             "videoSize": "1280x720"  # Android特有参数
         }
@@ -457,7 +457,35 @@ def logged_in_driver(nut_cloud_logged, app_driver):
 @pytest.fixture(scope="function")
 def nut_cloud_login_page(logged_in_driver):
     home_page = HomePage(logged_in_driver)
+    # 存储清理函数的列表
+    cleanup_actions: List[Callable] = []
+    
+    # 提供注册清理函数的方法
+    home_page.register_cleanup = lambda func: cleanup_actions.append(func)
+    
+    # 使用简单的布尔标志而不是列表
+    skip_default_cleanup = False
+    
+    # 提供设置跳过默认清理的方法
+    def set_skip_default_cleanup():
+        nonlocal skip_default_cleanup
+        skip_default_cleanup = True
+    
+    home_page.set_skip_default_cleanup = set_skip_default_cleanup
     yield home_page
+    for cleanup_action in cleanup_actions:
+        try:
+            cleanup_action()
+        except Exception as e:
+            pytest.fail(f"清理动作执行失败: {str(e)}")
+    
+    # 在所有自定义清理完成后，检查是否需要执行默认清理
+    if not skip_default_cleanup:
+        try:
+            home_page.navigate_back(1)
+        except Exception as e:
+            # 建议至少记录日志，而不是完全忽略异常
+            print(f"默认清理失败: {e}")
 
 
 # 获取有效的登录凭证
@@ -571,4 +599,4 @@ def nut_cloud_login(setup):
             nut_login_page.navigate_back(1)
         except Exception as e:
             # 建议至少记录日志，而不是完全忽略异常
-            print(f"默认清理失败: {e}")
+            logger.info(f"默认清理失败: {e}")
