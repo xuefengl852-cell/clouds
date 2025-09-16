@@ -1,6 +1,8 @@
 import allure
+import pytest
 
 
+@pytest.mark.run(order=6)
 @allure.epic("网盘首页点击更多按钮出现弹窗")
 @allure.feature("更多模块")
 class TestCloudsMore:

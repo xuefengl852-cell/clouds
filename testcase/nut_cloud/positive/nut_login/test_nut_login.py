@@ -14,6 +14,7 @@ test_username = 'liuxuefeng@hanwang.com.cn'
 test_password = 'ani2k9vrmac7epjp'
 
 
+@pytest.mark.run(order=1)
 @allure.epic("坚果云网盘登陆页面测试")
 @allure.feature("登录模块")
 class TestLoginScenarios:

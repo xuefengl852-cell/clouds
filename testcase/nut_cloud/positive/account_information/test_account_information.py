@@ -8,8 +8,10 @@ from utils.test_data_loader import load_test_data
 
 logger = logging.getLogger(__name__)
 test_positive_data = load_test_data("positive_rename.json")
+username = 'liuxuefeng@hanwang.com.cn'
 
 
+@pytest.mark.run(order=3)
 @allure.epic("长按坚果云网盘点击账户信息")
 @allure.feature("账户信息模块")
 class TestAccountInformationScenarios:
@@ -70,6 +72,14 @@ class TestAccountInformationScenarios:
     @pytest.mark.parametrize("rename_data", test_positive_data,
                              ids=[item['description'] for item in test_positive_data])
     def test_input_account_name(self, logged_in_account_edit_page, rename_data):
+        logged_in_account_edit_page.set_skip_default_cleanup()
+        
+        def update_account_name():
+            logged_in_account_edit_page.input_account(
+                username
+            ).click_sure_button()
+        
+        logged_in_account_edit_page.register_cleanup(update_account_name)
         try:
             with allure.step("输入名称"):
                 result = logged_in_account_edit_page.input_account(
@@ -145,7 +155,6 @@ class TestAccountInformationScenarios:
             nut_login_page.login_successful()
         
         logged_in_account_information_page.register_cleanup(bind_nut_cloud)
-        
         with allure.step("点击解绑"):
             result = logged_in_account_information_page.click_unbind_button()
             assert result.get_unbind_window_text() == '是否解绑？', f"点击解绑按钮失败"

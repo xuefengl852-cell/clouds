@@ -1,10 +1,12 @@
 import logging
 
 import allure
+import pytest
 
 logger = logging.getLogger(__name__)
 
 
+@pytest.mark.run(order=5)
 @allure.epic("网盘主页长按坚果云网盘")
 @allure.feature("详情页模块")
 class TestDetailsScenarios:

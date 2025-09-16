@@ -548,23 +548,26 @@ def logged_in_account_information_page(logged_in_details_page, cleanup_manager):
 
 
 @pytest.fixture(scope="function")
-def logged_in_account_edit_page(logged_in_account_information_page, app_driver):
+def logged_in_account_edit_page(logged_in_account_information_page, cleanup_manager):
     edit_account_modal = logged_in_account_information_page.EditAccountModal(
         logged_in_account_information_page.driver
     )
     edit_account_edit = edit_account_modal.click_edit_button()
+    edit_account_edit.register_cleanup = cleanup_manager.register_cleanup
+    edit_account_edit.set_skip_default_cleanup = cleanup_manager.set_skip_default_cleanup
     yield edit_account_edit
 
 
 # 获取重命名页
 @pytest.fixture(scope="function")
-def logged_in_account_rename_page(logged_in_details_page, logged_in_home_page):
+def logged_in_account_rename_page(logged_in_details_page, logged_in_home_page, cleanup_manager):
     try:
         # 使用新的导航方法
         account_info_page = logged_in_details_page.navigate_to_account_rename()
+        account_info_page.register_cleanup = cleanup_manager.register_cleanup
+        account_info_page.set_skip_default_cleanup = cleanup_manager.set_skip_default_cleanup
         yield account_info_page
-        account_info_page
-        logged_in_home_page.long_press_cloud()
+    
     except Exception as e:
         logger.error(f"账户信息页加载失败: {str(e)}")
         pytest.fail(f"无法加载账户信息页: {str(e)}")

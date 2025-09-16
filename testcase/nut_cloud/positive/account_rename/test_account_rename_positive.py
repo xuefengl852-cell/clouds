@@ -12,6 +12,7 @@ default_placeholder = "输入网盘名称"
 success_toast = "重命名成功"
 
 
+@pytest.mark.run(order=4)
 @pytest.mark.login_required
 @allure.epic("账户模块")  # 使用更规范的层级标签
 @allure.feature("账户重命名正向用例模块")
@@ -57,6 +58,14 @@ class TestAccountRenamePositive:
                              ids=[item['description'] for item in test_positive_data])
     @allure.story("用户输入不同长度名称后点击确定")
     def test_input_account_name_sure(self, logged_in_account_rename_page, rename_data):
+        username = 'liuxuefeng@hanwang.com.cn'
+        
+        def update_name():
+            logged_in_account_rename_page.input_account_name(username)
+            logged_in_account_rename_page.click_sure_button()
+        
+        logged_in_account_rename_page.set_skip_default_cleanup()
+        logged_in_account_rename_page.register_cleanup(update_name)
         allure.dynamic.title(rename_data['description'])
         with allure.step("网盘重命名"):
             result = logged_in_account_rename_page.input_account_name(rename_data['new_name'])
