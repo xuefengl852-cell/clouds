@@ -1,0 +1,34 @@
+locators:
+  cloud:
+    #返回上一层
+    drive: "hanvon.aebr.hanvondrive:id/tv_drive"
+    #搜索按钮
+    search: "hanvon.aebr.hanvondrive:id/bt_search"
+    #传输列表
+    download: "hanvon.aebr.hanvondrive:id/bt_download"
+    #刷新按钮
+    refresh: "hanvon.aebr.hanvondrive:id/bt_refresh"
+    #更多按钮
+    setup: "hanvon.aebr.hanvondrive:id/bt_setup"
+    #文件、文件夹右上角选择按钮
+    jan_grid_chb: "hanvon.aebr.hanvondrive:id/janGridChb"
+    #文件、文件夹中心图标
+    jan_grid_tv: "hanvon.aebr.hanvondrive:id/janGridIv"
+    #文件、文件夹名称
+    file_grid_tv: "xpath://*[@resource-id='hanvon.aebr.hanvondrive:id/fileGridTv']"
+    #搜索页文件、文件夹名称
+    jan_list_name_tv: "hanvon.aebr.hanvondrive:id/janListNameTv"
+    #传输列表返回按钮
+    dd_drive: "hanvon.aebr.hanvondrive:id/dd_drive"
+    #更多弹窗
+    root_layout: "hanvon.aebr.hanvondrive:id/rootLayout"
+    #文件下载状态
+    status_grid_tv: "hanvon.aebr.hanvondrive:id/statusGridTv"
+    #左翻页
+    pre_page: "hanvon.aebr.hanvondrive:id/iv_prepage"
+    #右翻页
+    next_page: "hanvon.aebr.hanvondrive:id/iv_nextpage"
+    #总页数
+    page_tv: "hanvon.aebr.hanvondrive:id/page_tv"
+    #坚果云网盘标志
+    tv_account: "hanvon.aebr.hanvondrive:id/tv_accout"

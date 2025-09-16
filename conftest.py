@@ -5,7 +5,7 @@ import subprocess
 from datetime import datetime
 from io import BytesIO
 from logging.handlers import TimedRotatingFileHandler
-from typing import Callable, List
+from typing import List, Callable
 
 import allure
 import pytest
@@ -18,6 +18,7 @@ from pages.clouds_more_page import CloudsMorePage
 from pages.home_clouds_page import HomeCloudsPage
 from pages.nut_cloud_page.account_information_page import AccountInformationPage
 from pages.nut_cloud_page.details_page import DetailsPage
+from pages.nut_cloud_page.document_home_page import DocumentHomePage
 from pages.nut_cloud_page.home_page import HomePage
 from pages.nut_cloud_page.nut_login_page import NutLoginPage
 # 从配置模块导入
@@ -419,7 +420,43 @@ def clean_database(device_id=None):
             logger.warning(f"⚠️ 文件检查异常: {check_result.stderr.strip()}")
 
 
-@pytest.fixture(scope="class")
+class CleanupManager:
+    def __init__(self):
+        self.cleanup_actions: List[Callable] = []
+        self.skip_default_cleanup = False
+    
+    def register_cleanup(self, func: Callable):
+        """注册清理函数"""
+        self.cleanup_actions.append(func)
+    
+    def set_skip_default_cleanup(self):
+        """设置跳过默认清理"""
+        self.skip_default_cleanup = True
+    
+    def execute_cleanup(self):
+        """执行所有注册的清理操作"""
+        # 执行所有自定义清理操作
+        for cleanup_action in self.cleanup_actions:
+            try:
+                cleanup_action()
+            except Exception as e:
+                logger.error(f"清理动作执行失败: {str(e)}")
+                # 可以选择是否让测试失败
+                # pytest.fail(f"清理动作执行失败: {str(e)}")
+        
+        # 返回是否需要执行默认清理
+        return not self.skip_default_cleanup
+
+
+@pytest.fixture(scope="function")
+def cleanup_manager():
+    manager = CleanupManager()
+    yield manager
+    # 在测试结束后执行所有注册的清理操作，但不管默认清理（默认清理由各个fixture自己处理）
+    manager.execute_cleanup()  # 注意：这个方法现在只执行注册的清理，不处理默认清理
+
+
+@pytest.fixture(scope="session")
 def app_driver(request):
     # 获取命令行参数
     device_id = request.config.getoption("--device-id", default=None)
@@ -427,26 +464,26 @@ def app_driver(request):
     app_activity = request.config.getoption("--app-activity", default=".MainActivity")
     
     # 执行智能清理
-    clean_database(device_id)
+    # clean_database(device_id)
     """创建并返回Appium driver"""
     driver = init_driver()
     yield driver
     driver.quit()
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture(scope="session")
 def setup(app_driver):  # 注意：这里移除了self参数
     home_cloud_page = HomeCloudsPage(app_driver)
     yield home_cloud_page
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture(scope="session")
 def nut_cloud_logged(setup):
     setup.click_nut_cloud_success()
     yield app_driver
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture(scope="session")
 def logged_in_driver(nut_cloud_logged, app_driver):
     """Session 范围的已登录 driver"""
     login_page = NutLoginPage(app_driver)
@@ -455,48 +492,28 @@ def logged_in_driver(nut_cloud_logged, app_driver):
 
 
 @pytest.fixture(scope="function")
-def nut_cloud_login_page(logged_in_driver):
+def nut_cloud_login_page(logged_in_driver, cleanup_manager):
     home_page = HomePage(logged_in_driver)
-    # 存储清理函数的列表
-    cleanup_actions: List[Callable] = []
-    
-    # 提供注册清理函数的方法
-    home_page.register_cleanup = lambda func: cleanup_actions.append(func)
-    
-    # 使用简单的布尔标志而不是列表
-    skip_default_cleanup = False
-    
-    # 提供设置跳过默认清理的方法
-    def set_skip_default_cleanup():
-        nonlocal skip_default_cleanup
-        skip_default_cleanup = True
-    
-    home_page.set_skip_default_cleanup = set_skip_default_cleanup
+    # 将清理方法附加到页面对象上
+    home_page.register_cleanup = cleanup_manager.register_cleanup
+    home_page.set_skip_default_cleanup = cleanup_manager.set_skip_default_cleanup
     yield home_page
-    for cleanup_action in cleanup_actions:
-        try:
-            cleanup_action()
-        except Exception as e:
-            pytest.fail(f"清理动作执行失败: {str(e)}")
-    
-    # 在所有自定义清理完成后，检查是否需要执行默认清理
-    if not skip_default_cleanup:
+    if not cleanup_manager.skip_default_cleanup:
         try:
             home_page.navigate_back(1)
         except Exception as e:
-            # 建议至少记录日志，而不是完全忽略异常
-            print(f"默认清理失败: {e}")
+            logger.info(f"默认清理失败: {e}")
 
 
 # 获取有效的登录凭证
 @pytest.fixture(scope="class")
-def logged_in_home_page(logged_in_driver):
-    home_page = HomePage(logged_in_driver)
+def logged_in_home_page(app_driver):
+    home_page = HomePage(app_driver)
     yield home_page
 
 
 @pytest.fixture(scope="function")
-def logged_in_details_page(logged_in_driver, logged_in_home_page):
+def logged_in_details_page(logged_in_home_page):
     details_page = DetailsPage(logged_in_home_page.driver)
     logged_in_home_page.long_press_cloud_success()
     yield details_page
@@ -512,7 +529,7 @@ def cloud_more_window(logged_in_home_page):
 
 @pytest.fixture(scope="function")
 def cloud_sort_button(logged_in_home_page, app_driver):
-    more_page = CloudsMorePage(app_driver)
+    more_page = CloudsMorePage(logged_in_home_page)
     logged_in_home_page.click_more_button_workflow()
     cloud_sort_page = CloudSortPage(app_driver)
     more_page.click_sort_button_success()
@@ -521,11 +538,13 @@ def cloud_sort_button(logged_in_home_page, app_driver):
 
 # 获取账户信息页
 @pytest.fixture(scope="function")
-def logged_in_account_information_page(logged_in_details_page):
+def logged_in_account_information_page(logged_in_details_page, cleanup_manager):
     account_information_page = AccountInformationPage(logged_in_details_page.driver)
     # 使用新的导航方法
     logged_in_details_page.navigate_to_account_information()
-    return account_information_page
+    account_information_page.register_cleanup = cleanup_manager.register_cleanup
+    account_information_page.set_skip_default_cleanup = cleanup_manager.set_skip_default_cleanup
+    yield account_information_page
 
 
 @pytest.fixture(scope="function")
@@ -534,7 +553,7 @@ def logged_in_account_edit_page(logged_in_account_information_page, app_driver):
         logged_in_account_information_page.driver
     )
     edit_account_edit = edit_account_modal.click_edit_button()
-    return edit_account_edit
+    yield edit_account_edit
 
 
 # 获取重命名页
@@ -551,52 +570,33 @@ def logged_in_account_rename_page(logged_in_details_page, logged_in_home_page):
         pytest.fail(f"无法加载账户信息页: {str(e)}")
 
 
-# 获取重命名页
 @pytest.fixture(scope="function")
-def logged_in_account_rename_page(logged_in_details_page):
-    try:
-        # 使用新的导航方法
-        account_info_page = logged_in_details_page.navigate_to_account_rename()
-        yield account_info_page
-    except Exception as e:
-        logger.error(f"账户信息页加载失败: {str(e)}")
-        pytest.fail(f"无法加载账户信息页: {str(e)}")
-
-
-@pytest.fixture(scope="function")
-def nut_cloud_login(setup):
+def nut_cloud_login(setup, cleanup_manager):
     nut_login_page = NutLoginPage(setup.driver)
     setup.click_nut_cloud_success()
-    
-    # 存储清理函数的列表
-    cleanup_actions: List[Callable] = []
-    
-    # 提供注册清理函数的方法
-    nut_login_page.register_cleanup = lambda func: cleanup_actions.append(func)
-    
-    # 使用简单的布尔标志而不是列表
-    skip_default_cleanup = False
-    
-    # 提供设置跳过默认清理的方法
-    def set_skip_default_cleanup():
-        nonlocal skip_default_cleanup
-        skip_default_cleanup = True
-    
-    nut_login_page.set_skip_default_cleanup = set_skip_default_cleanup
+    # 将清理方法附加到页面对象上
+    nut_login_page.register_cleanup = cleanup_manager.register_cleanup
+    nut_login_page.set_skip_default_cleanup = cleanup_manager.set_skip_default_cleanup
     
     yield nut_login_page
     
-    # 执行所有注册的清理动作
-    for cleanup_action in cleanup_actions:
-        try:
-            cleanup_action()
-        except Exception as e:
-            pytest.fail(f"清理动作执行失败: {str(e)}")
-    
-    # 在所有自定义清理完成后，检查是否需要执行默认清理
-    if not skip_default_cleanup:
+    if not cleanup_manager.skip_default_cleanup:
         try:
             nut_login_page.navigate_back(1)
         except Exception as e:
-            # 建议至少记录日志，而不是完全忽略异常
+            logger.info(f"默认清理失败: {e}")
+
+
+@pytest.fixture(scope="class")
+def enter_nut_cloud_home(logged_in_driver, cleanup_manager):
+    home_page = HomePage(logged_in_driver)
+    document_home_page = DocumentHomePage(logged_in_driver)
+    home_page.click_cloud()
+    document_home_page.register_cleanup = cleanup_manager.register_cleanup
+    document_home_page.set_skip_default_cleanup = cleanup_manager.set_skip_default_cleanup
+    yield document_home_page
+    if not cleanup_manager.skip_default_cleanup:
+        try:
+            document_home_page.navigate_back(1)
+        except Exception as e:
             logger.info(f"默认清理失败: {e}")

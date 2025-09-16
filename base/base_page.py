@@ -746,6 +746,46 @@ class BasePage:
             # 关键修改：重新抛出异常
             raise
     
+    def get_paginated_data(self, page_indicator_locator, section, key, next_button_locator):
+        """
+        通用分页数据获取方法
+
+        :param key:
+        :param section:
+        :param page_indicator_locator: 页码指示器元素定位器
+        :param next_button_locator: 下一页按钮定位器
+        :return: 所有页面数据的列表
+        """
+        try:
+            all_data = []
+            page_info = self.get_element_attribute(page_indicator_locator, "text")
+            current_page_str, separator, total_pages_str = page_info.partition('/')
+            current_page = int(current_page_str)
+            total_pages = int(total_pages_str)
+            logger.info(f"当前页: {current_page}, 总页数: {total_pages}")
+            
+            for page_num in range(current_page, total_pages + 1):
+                logger.info(f"正在处理第 {page_num} 页")
+                
+                page_data = self.get_all_folder_texts(section, key)
+                
+                if page_data:
+                    all_data.extend(page_data)
+                    logger.info(f"第 {page_num} 页找到 {len(page_data)} 条数据")
+                else:
+                    logger.warning(f"第 {page_num} 页没有找到数据")
+                
+                # 如果不是最后一页，点击下一页
+                if page_num < total_pages:
+                    self.click(next_button_locator)
+                    logger.info("已点击下一页")
+            
+            logger.info(f"总共找到 {len(all_data)} 条数据")
+            return all_data
+        except Exception as e:
+            logger.error(f"获取分页数据时出错: {str(e)}")
+            raise
+    
     def get_all_folder_texts(self, section, key):
         """
             获取页面中所有文件夹的文本内容

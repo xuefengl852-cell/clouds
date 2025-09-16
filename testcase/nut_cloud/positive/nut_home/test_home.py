@@ -1,6 +1,8 @@
 import allure
+import pytest
 
 
+@pytest.mark.run(order=1)
 @allure.epic("坚果云网盘详情页")
 @allure.feature("主页登录模块")
 class TestHomeScenarios:
@@ -8,6 +10,7 @@ class TestHomeScenarios:
     @allure.story("用户长按网盘")
     @allure.title("长按验证是否出现详情页弹窗")
     def test_long_cloud(self, nut_cloud_login_page):
+        # nut_cloud_login_page.set_skip_default_cleanup()
         with allure.step("长按网盘图标"):
             result = nut_cloud_login_page.long_nut_cloud()
             assert result.get_text_long_enter_details() == '详情', f"长按坚果云网盘断言失败"

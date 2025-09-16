@@ -3,6 +3,7 @@ import logging
 import allure
 import pytest
 
+from pages.nut_cloud_page.nut_login_page import NutLoginPage
 from utils.test_data_loader import load_test_data
 
 logger = logging.getLogger(__name__)
@@ -137,6 +138,14 @@ class TestAccountInformationScenarios:
     @allure.story("用户点击解绑按钮后点击确定")
     @allure.title("验证是否返回到坚果云绑定页面")
     def test_click_unbind_sure_button(self, logged_in_account_information_page):
+        logged_in_account_information_page.set_skip_default_cleanup()
+        
+        def bind_nut_cloud():
+            nut_login_page = NutLoginPage(logged_in_account_information_page.driver)
+            nut_login_page.login_successful()
+        
+        logged_in_account_information_page.register_cleanup(bind_nut_cloud)
+        
         with allure.step("点击解绑"):
             result = logged_in_account_information_page.click_unbind_button()
             assert result.get_unbind_window_text() == '是否解绑？', f"点击解绑按钮失败"

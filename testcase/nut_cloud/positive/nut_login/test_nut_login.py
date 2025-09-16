@@ -138,6 +138,20 @@ class TestLoginScenarios:
     @allure.step("用户输入正确的账号密码进行登录")
     @allure.title("验证正确用户名密码登陆成功")
     def test_input_username_password_login_success(self, nut_cloud_login, login_data):
+        nut_cloud_login.set_skip_default_cleanup()
+        
+        def unbind_nut_cloud():
+            logger.info("你还")
+            home_page = HomePage(nut_cloud_login.driver)
+            details_page = DetailsPage(nut_cloud_login.driver)
+            account_information = AccountInformationPage(nut_cloud_login.driver)
+            home_page.long_nut_cloud()
+            details_page.click_account_button()
+            account_information.unbind_nut_cloud_success()
+            result._safe_navigate_back(1)
+        
+        nut_cloud_login.register_cleanup(unbind_nut_cloud)
+        
         with allure.step("正确登录"):
             with allure.step("输入账号，输入密码"):
                 result = nut_cloud_login.input_username(login_data['username'])
@@ -151,15 +165,3 @@ class TestLoginScenarios:
                 result.click_sure()
                 login_success_toast = result.get_toast_page_text() == '成功绑定账号'
                 assert login_success_toast, f"登录失败"
-        
-        def unbind_nut_cloud():
-            logger.info("你还")
-            home_page = HomePage(nut_cloud_login.driver)
-            details_page = DetailsPage(nut_cloud_login.driver)
-            account_information = AccountInformationPage(nut_cloud_login.driver)
-            home_page.long_nut_cloud()
-            details_page.click_account_button()
-            account_information.unbind_nut_cloud_success()
-            result._safe_navigate_back(1)
-        
-        nut_cloud_login.register_cleanup(unbind_nut_cloud)
