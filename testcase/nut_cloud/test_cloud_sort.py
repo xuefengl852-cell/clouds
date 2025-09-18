@@ -2,7 +2,7 @@ import allure
 import pytest
 
 
-@pytest.mark.run(order=7)
+@pytest.mark.run(order=8)
 @allure.epic("更多功能点击排序")
 @allure.feature("网盘排序")
 class TestCloudSort:

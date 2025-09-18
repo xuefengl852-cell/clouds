@@ -11,7 +11,7 @@ test_positive_data = load_test_data("positive_rename.json")
 username = 'liuxuefeng@hanwang.com.cn'
 
 
-@pytest.mark.run(order=3)
+@pytest.mark.run(order=4)
 @allure.epic("长按坚果云网盘点击账户信息")
 @allure.feature("账户信息模块")
 class TestAccountInformationScenarios:

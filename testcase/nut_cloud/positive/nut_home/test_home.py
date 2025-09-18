@@ -2,7 +2,7 @@ import allure
 import pytest
 
 
-@pytest.mark.run(order=2)
+@pytest.mark.run(order=3)
 @allure.epic("坚果云网盘详情页")
 @allure.feature("主页登录模块")
 class TestHomeScenarios:

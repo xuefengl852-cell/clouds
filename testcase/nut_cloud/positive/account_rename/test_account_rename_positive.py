@@ -12,7 +12,7 @@ default_placeholder = "输入网盘名称"
 success_toast = "重命名成功"
 
 
-@pytest.mark.run(order=4)
+@pytest.mark.run(order=5)
 @pytest.mark.login_required
 @allure.epic("账户模块")  # 使用更规范的层级标签
 @allure.feature("账户重命名正向用例模块")

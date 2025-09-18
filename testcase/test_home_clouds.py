@@ -6,7 +6,7 @@ from utils.test_data_loader import load_test_data
 cloud_index_data = load_test_data("home_clouds.json")
 
 
-@pytest.mark.run(order=8)
+@pytest.mark.run(order=1)
 @allure.epic("坚果云网盘首页点击网盘测试")
 @allure.feature("绑定网盘")
 class TestHomeClouds:

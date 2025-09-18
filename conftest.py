@@ -4,7 +4,6 @@ import os
 import subprocess
 from datetime import datetime
 from io import BytesIO
-from logging.handlers import TimedRotatingFileHandler
 from typing import List, Callable
 
 import allure
@@ -54,40 +53,24 @@ def custom_log_namer(default_name):
 
 def pytest_configure(config):
     """配置测试环境"""
-    # 确保日志目录存在
-    log_dir = os.path.join(BASE_DIR, "logs")
-    os.makedirs(log_dir, exist_ok=True)
+    # 生成带时间戳的日志文件名
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    log_file_name = f"pytest_run_{timestamp}.log"
     
-    # 创建按天轮转的日志处理器
-    log_file = os.path.join(log_dir, "pytest1.log")  # 基础日志文件名
+    # 全局日志目录（存放所有运行日志）
+    GLOBAL_LOG_DIR = os.path.join(BASE_DIR, "logs", "pytest_runs")
+    os.makedirs(GLOBAL_LOG_DIR, exist_ok=True)
+    log_file_path = os.path.join(GLOBAL_LOG_DIR, log_file_name)
     
-    # 创建 TimedRotatingFileHandler - 使用本地时间
-    file_handler = TimedRotatingFileHandler(
-        filename=log_file,
-        when="midnight",  # 每天午夜轮转
-        interval=1,  # 每天一次
-        backupCount=30,  # 保留30天
-        encoding="utf-8",
-        utc=False  # 使用本地时间
-    )
-    # 应用自定义命名函数设置文件名格式（推荐）
-    file_handler.namer = custom_log_namer  # 轮转文件后缀格式
-    # 或者使用更精确的格式（可选）:
-    # file_handler.suffix = "%Y-%m-%d_%H-%M-%S.log"
+    # 动态设置本次运行的日志文件路径
+    # 关键：这将覆盖 pytest.ini 或命令行中指定的 log_file 设置
+    config.option.log_file = log_file_path
     
-    # 设置日志格式
-    formatter = logging.Formatter(
-        "%(asctime)s | %(levelname)-8s | %(name)s:%(lineno)d | %(message)s",
-        "%Y-%m-%d %H:%M:%S"
-    )
-    file_handler.setFormatter(formatter)
-    file_handler.setLevel(logging.INFO)
+    # （可选）同时配置 log_cli 如果你想在控制台也看到实时日志
+    # config.option.log_cli = True
+    # config.option.log_cli_level = 'INFO'
     
-    # 配置根日志记录器
-    root_logger = logging.getLogger()
-    root_logger.addHandler(file_handler)
-    root_logger.setLevel(logging.DEBUG)
-    # 创建所有需要的目录
+    # 确保其他目录存在
     os.makedirs(SCREENSHOT_DIR, exist_ok=True)
     os.makedirs(VIDEO_DIR, exist_ok=True)
     os.makedirs(ALLURE_RESULTS_DIR, exist_ok=True)
@@ -95,17 +78,12 @@ def pytest_configure(config):
     # 设置 Allure 结果目录
     config.option.allure_report_dir = ALLURE_RESULTS_DIR
     
-    # 清理旧截图和录制文件
+    # 清理旧文件（可选，现在针对的是全局日志目录）
+    # cleanup_old_files(GLOBAL_LOG_DIR, ['.log'], MAX_RECORDINGS) # 你可以调整这个函数来清理旧的运行日志
     cleanup_old_files(SCREENSHOT_DIR, ['.png'], MAX_RECORDINGS)
     cleanup_old_files(VIDEO_DIR, ['.mp4'], MAX_RECORDINGS)
     
-    # # 记录路径信息
-    # logger.info("=" * 50)
-    # logger.info(f"项目根目录: {BASE_DIR}")
-    # logger.info(f"截图目录: {SCREENSHOT_DIR}")
-    # logger.info(f"视频目录: {VIDEO_DIR}")
-    # logger.info(f"Allure 结果目录: {ALLURE_RESULTS_DIR}")
-    # logger.info("=" * 50)
+    logger.info(f"本次测试运行日志将保存至: {log_file_path}")
 
 
 def cleanup_old_files(directory, extensions, max_files):
@@ -464,7 +442,7 @@ def app_driver(request):
     app_activity = request.config.getoption("--app-activity", default=".MainActivity")
     
     # 执行智能清理
-    # clean_database(device_id)
+    clean_database(device_id)
     """创建并返回Appium driver"""
     driver = init_driver()
     yield driver
@@ -528,10 +506,10 @@ def cloud_more_window(logged_in_home_page):
 
 
 @pytest.fixture(scope="function")
-def cloud_sort_button(logged_in_home_page, app_driver):
-    more_page = CloudsMorePage(logged_in_home_page)
+def cloud_sort_button(logged_in_home_page):
+    more_page = CloudsMorePage(logged_in_home_page.driver)
     logged_in_home_page.click_more_button_workflow()
-    cloud_sort_page = CloudSortPage(app_driver)
+    cloud_sort_page = CloudSortPage(logged_in_home_page.driver)
     more_page.click_sort_button_success()
     yield cloud_sort_page
 

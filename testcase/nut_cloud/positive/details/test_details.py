@@ -6,7 +6,7 @@ import pytest
 logger = logging.getLogger(__name__)
 
 
-@pytest.mark.run(order=5)
+@pytest.mark.run(order=6)
 @allure.epic("网盘主页长按坚果云网盘")
 @allure.feature("详情页模块")
 class TestDetailsScenarios:
@@ -31,4 +31,4 @@ class TestDetailsScenarios:
                 result = logged_in_details_page.click_rename_button()
                 assert result.get_rename_window_text() == '重命名', f"进入重命名界面失败"
             finally:
-                result.back()
+                result.navigate_back(2)

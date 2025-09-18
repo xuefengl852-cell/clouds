@@ -33,10 +33,6 @@ class CloudsMorePage(BasePage):
         self.click(self.tv_display)
         return self
     
-    def click_list_button(self):
-        self.click(self.tv_display)
-        return self
-    
     def click_sort_button(self):
         self.click(self.tv_sort)
         return self
