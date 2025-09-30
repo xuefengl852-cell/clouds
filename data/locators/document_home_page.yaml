@@ -1,7 +1,7 @@
 locators:
   cloud:
     #返回上一层
-    drive: "hanvon.aebr.hanvondrive:id/tv_drive"
+    back: "hanvon.aebr.hanvondrive:id/bt_back"
     #搜索按钮
     search: "hanvon.aebr.hanvondrive:id/bt_search"
     #传输列表
@@ -32,3 +32,24 @@ locators:
     page_tv: "hanvon.aebr.hanvondrive:id/page_tv"
     #坚果云网盘标志
     tv_account: "hanvon.aebr.hanvondrive:id/tv_accout"
+    #文件、文件夹父元素
+    document_parent_element: "hanvon.aebr.hanvondrive:id/rootLayout"
+    #搜索框元素
+    jan_search_et: "hanvon.aebr.hanvondrive:id/janSearchEt"
+    jan_pop_sort: "hanvon.aebr.hanvondrive:id/phonejanpopsortTv"
+    #新建文件夹、排序title
+    jan_new_file_tv: "hanvon.aebr.hanvondrive:id/janNewfileTv"
+    #列表模式文件标识
+    list_mode: "hanvon.aebr.hanvondrive:id/rootListLayout"
+    #批量管理-复制
+    phone_ja_copy: "hanvon.aebr.hanvondrive:id/phonejaCopyTv"
+    #批量管理-已选择
+    select_ed: "hanvon.aebr.hanvondrive:id/selectEdTv"
+    #批量管理-全选
+    phone_select: "hanvon.aebr.hanvondrive:id/phoneSelectTv"
+    #批量管理-移动
+    phone_ja_move: "hanvon.aebr.hanvondrive:id/phonejaMoveTv"
+    #批量管理-下载
+    phone_jan_sec: "hanvon.aebr.hanvondrive:id/phonejanSecTv"
+    #批量管理-删除
+    phone_jan_delete: "hanvon.aebr.hanvondrive:id/phonejanDeleteTv"

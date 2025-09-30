@@ -30,7 +30,7 @@ class TestCloudsMore:
     
     @allure.story("用户点击排序")
     @allure.title("验证点击排序后是否弹出排序窗口")
-    def test__click_sort_button(self, cloud_more_window):
+    def test_click_sort_button(self, cloud_more_window):
         with allure.step("点击排序"):
             result = cloud_more_window.click_sort_button()
             assert result.get_sort_window_text() == '排序', f"排序弹窗未正确弹出"

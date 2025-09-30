@@ -442,7 +442,7 @@ def app_driver(request):
     app_activity = request.config.getoption("--app-activity", default=".MainActivity")
     
     # 执行智能清理
-    clean_database(device_id)
+    # clean_database(device_id)
     """创建并返回Appium driver"""
     driver = init_driver()
     yield driver
@@ -568,11 +568,9 @@ def nut_cloud_login(setup, cleanup_manager):
             logger.info(f"默认清理失败: {e}")
 
 
-@pytest.fixture(scope="class")
-def enter_nut_cloud_home(logged_in_driver, cleanup_manager):
-    home_page = HomePage(logged_in_driver)
-    document_home_page = DocumentHomePage(logged_in_driver)
-    home_page.click_cloud()
+@pytest.fixture(scope="function")
+def enter_nut_cloud_home(app_driver, cleanup_manager):
+    document_home_page = DocumentHomePage(app_driver)
     document_home_page.register_cleanup = cleanup_manager.register_cleanup
     document_home_page.set_skip_default_cleanup = cleanup_manager.set_skip_default_cleanup
     yield document_home_page
@@ -581,3 +579,19 @@ def enter_nut_cloud_home(logged_in_driver, cleanup_manager):
             document_home_page.navigate_back(1)
         except Exception as e:
             logger.info(f"默认清理失败: {e}")
+
+
+@pytest.fixture(scope="session")
+def click_nut_cloud(app_driver):
+    home_page = HomePage(app_driver)
+    home_page.click_cloud()
+    yield app_driver
+
+
+@pytest.fixture(scope="function")
+def more_pop_window_page(app_driver, cleanup_manager):
+    document_home_page = DocumentHomePage(app_driver)
+    more_pop_window = document_home_page.MorePopWindow(app_driver)
+    document_home_page.click_more_button()
+    more_pop_window.register_cleanup = cleanup_manager.register_cleanup
+    yield more_pop_window

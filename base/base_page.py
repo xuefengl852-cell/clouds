@@ -746,14 +746,15 @@ class BasePage:
             # 关键修改：重新抛出异常
             raise
     
-    def get_paginated_data(self, page_indicator_locator, section, key, next_button_locator):
+    def get_paginated_data(self, page_indicator_locator, section, key, next_button_locator, prev_button_locator=None):
         """
-        通用分页数据获取方法
+        通用分页数据获取方法，并在结束后恢复页面到初始状态
 
-        :param key:
-        :param section:
+        :param key: 数据键
+        :param section: 数据部分
         :param page_indicator_locator: 页码指示器元素定位器
         :param next_button_locator: 下一页按钮定位器
+        :param prev_button_locator: 上一页按钮定位器（可选，如果不提供则无法恢复页面状态）
         :return: 所有页面数据的列表
         """
         try:
@@ -763,6 +764,12 @@ class BasePage:
             current_page = int(current_page_str)
             total_pages = int(total_pages_str)
             logger.info(f"当前页: {current_page}, 总页数: {total_pages}")
+            
+            # 记录初始页面
+            initial_page = current_page
+            
+            # 记录点击下一页的次数
+            next_clicks = 0
             
             for page_num in range(current_page, total_pages + 1):
                 logger.info(f"正在处理第 {page_num} 页")
@@ -778,12 +785,43 @@ class BasePage:
                 # 如果不是最后一页，点击下一页
                 if page_num < total_pages:
                     self.click(next_button_locator)
+                    next_clicks += 1
                     logger.info("已点击下一页")
+                    
+                    # 等待页面加载
+                    time.sleep(1)  # 根据实际情况调整等待时间
             
             logger.info(f"总共找到 {len(all_data)} 条数据")
+            logger.info(f"总共点击了 {next_clicks} 次下一页")
+            
+            # 恢复页面到初始状态
+            if prev_button_locator and next_clicks > 0:
+                logger.info("正在恢复页面到初始状态...")
+                for _ in range(next_clicks):
+                    try:
+                        self.click(prev_button_locator)
+                        logger.info("已点击上一页")
+                        time.sleep(0.5)  # 短暂等待页面切换
+                    except Exception as e:
+                        logger.error(f"点击上一页时出错: {str(e)}")
+                        break
+            
             return all_data
         except Exception as e:
             logger.error(f"获取分页数据时出错: {str(e)}")
+            
+            # 即使出错也尝试恢复页面状态
+            if prev_button_locator and next_clicks > 0:
+                logger.info("尝试在出错后恢复页面状态...")
+                for _ in range(next_clicks):
+                    try:
+                        self.click(prev_button_locator)
+                        logger.info("已点击上一页")
+                        time.sleep(0.5)
+                    except Exception as e:
+                        logger.error(f"恢复页面状态时出错: {str(e)}")
+                        break
+            
             raise
     
     def get_all_folder_texts(self, section, key):
@@ -826,3 +864,398 @@ class BasePage:
     def navigate_back(self, steps):
         # 公共方法封装内部实现
         self._safe_navigate_back(steps)
+    
+    def click_checkbox_by_filename(self, file_items_locator, filename_element_locator, checkbox_locator,
+                                   target_filenames, page_indicator_locator, next_button_locator,
+                                   click_method="click", long_press_duration=1000,
+                                   select_current_page=False, select_all_pages=False):
+        """
+        根据文件名点击对应的复选框（支持多文件选择和多页查找）
+
+        :param next_button_locator: 下一页定位器
+        :param page_indicator_locator: 页码指示器元素定位器
+        :param file_items_locator: 父节点元素定位器
+        :param filename_element_locator: 文件名称元素定位器
+        :param checkbox_locator: 复选框元素定位器
+        :param target_filenames: 目标文件名称列表或单个文件名
+        :param select_current_page: 是否全选当前页文件
+        :param select_all_pages: 是否全选所有页文件
+        :param click_method: 点击方式，"click" 或 "long_press"
+        :param long_press_duration: 长按持续时间（毫秒），默认1000ms
+        :return: 成功选择的文件数量
+        """
+        
+        if select_current_page and select_all_pages:
+            logger.warning("select_current_page和select_all_pages同时设置为True，优先使用select_all_pages")
+            select_current_page = False
+        
+        if isinstance(target_filenames, str):
+            target_filenames = [target_filenames]
+        
+        # 验证点击方式参数
+        if click_method not in ["click", "long_press"]:
+            logger.warning(f"不支持的点击方式: {click_method}，使用默认点击")
+            click_method = "click"
+        
+        # 获取页码信息
+        page_info = self.get_element_attribute(page_indicator_locator, "text")
+        current_page_str, separator, total_pages_str = page_info.partition('/')
+        current_page = int(current_page_str)
+        total_pages = int(total_pages_str)
+        logger.info(f"当前页: {current_page}, 总页数: {total_pages}, 点击方式: {click_method}")
+        
+        # 根据选择模式调用相应的处理方法
+        if select_current_page:
+            return self._select_current_page_files(
+                file_items_locator, filename_element_locator, checkbox_locator,
+                click_method, long_press_duration
+            )
+        elif select_all_pages:
+            return self._select_all_pages_files(
+                file_items_locator, filename_element_locator, checkbox_locator,
+                page_indicator_locator, next_button_locator,
+                click_method, long_press_duration, current_page, total_pages
+            )
+        else:
+            return self._select_files_by_name(
+                file_items_locator, filename_element_locator, checkbox_locator,
+                target_filenames, page_indicator_locator, next_button_locator,
+                click_method, long_press_duration, current_page, total_pages
+            )
+    
+    def _select_current_page_files(self, file_items_locator, filename_element_locator, checkbox_locator,
+                                   click_method, long_press_duration):
+        """全选当前页文件"""
+        logger.info("开始全选当前页文件")
+        selected_count = 0
+        
+        file_items = self.driver.find_elements(*file_items_locator)
+        logger.info(f"找到 {len(file_items)} 个文件项")
+        
+        for item in file_items:
+            selected = self._select_single_file_item(
+                item, filename_element_locator, checkbox_locator,
+                click_method, long_press_duration
+            )
+            if selected:
+                selected_count += 1
+        
+        logger.info(f"全选当前页完成，成功选择了 {selected_count} 个文件")
+        return selected_count
+    
+    def _select_all_pages_files(self, file_items_locator, filename_element_locator, checkbox_locator,
+                                page_indicator_locator, next_button_locator,
+                                click_method, long_press_duration, start_page, total_pages):
+        """全选所有页文件"""
+        logger.info("开始全选所有页文件")
+        selected_count = 0
+        
+        # 遍历所有页面
+        for page_num in range(start_page, total_pages + 1):
+            logger.info(f"正在处理第 {page_num} 页")
+            
+            # 处理当前页
+            page_selected_count = self._process_current_page(
+                file_items_locator, filename_element_locator, checkbox_locator,
+                None, click_method, long_press_duration
+            )
+            selected_count += page_selected_count
+            
+            logger.info(f"在第 {page_num} 页成功选择了 {page_selected_count} 个文件")
+            
+            # 如果不是最后一页，则翻页
+            if page_num < total_pages:
+                self._navigate_to_next_page(
+                    next_button_locator, click_method, long_press_duration
+                )
+        
+        logger.info(f"全选所有页完成，总共成功选择了 {selected_count} 个文件")
+        return selected_count
+    
+    def _select_files_by_name(self, file_items_locator, filename_element_locator, checkbox_locator,
+                              target_filenames, page_indicator_locator, next_button_locator,
+                              click_method, long_press_duration, start_page, total_pages):
+        """按文件名选择文件"""
+        logger.info("开始按文件名选择文件")
+        selected_count = 0
+        
+        # 遍历所有页面
+        for page_num in range(start_page, total_pages + 1):
+            logger.info(f"正在处理第 {page_num} 页")
+            
+            # 处理当前页
+            page_selected_count = self._process_current_page(
+                file_items_locator, filename_element_locator, checkbox_locator,
+                target_filenames, click_method, long_press_duration
+            )
+            selected_count += page_selected_count
+            
+            logger.info(f"在第 {page_num} 页成功选择了 {page_selected_count} 个文件")
+            
+            # 如果不是最后一页，并且需要继续查找
+            if page_num < total_pages:
+                # 如果当前页没有找到所有目标文件，则翻页
+                if not self._all_targets_found(target_filenames, selected_count):
+                    self._navigate_to_next_page(
+                        next_button_locator, click_method, long_press_duration
+                    )
+                else:
+                    # 如果已经找到所有目标文件，则退出循环
+                    break
+        
+        logger.info(f"按文件名选择完成，总共成功选择了 {selected_count} 个文件")
+        return selected_count
+    
+    def _process_current_page(self, file_items_locator, filename_element_locator, checkbox_locator,
+                              target_filenames, click_method, long_press_duration):
+        """处理当前页的文件项"""
+        selected_count = 0
+        file_items = self.driver.find_elements(*file_items_locator)
+        logger.info(f"找到 {len(file_items)} 个文件项")
+        
+        for item in file_items:
+            # 检查是否需要选择此文件
+            should_select = self._should_select_file(item, filename_element_locator, target_filenames)
+            
+            if should_select:
+                selected = self._select_single_file_item(
+                    item, filename_element_locator, checkbox_locator,
+                    click_method, long_press_duration
+                )
+                if selected:
+                    selected_count += 1
+        
+        return selected_count
+    
+    def _should_select_file(self, item, filename_element_locator, target_filenames):
+        """判断是否应该选择文件"""
+        # 如果target_filenames为None，表示全选（用于全选模式）
+        if target_filenames is None:
+            return True
+        
+        # 按文件名选择模式
+        try:
+            filename_element = item.find_element(*filename_element_locator)
+            filename = filename_element.text
+            return filename in target_filenames
+        except Exception as e:
+            logger.error(f"获取文件名时出错: {str(e)}")
+            return False
+    
+    def _select_single_file_item(self, item, filename_element_locator, checkbox_locator,
+                                 click_method, long_press_duration):
+        """选择单个文件项"""
+        try:
+            # 查找复选框
+            checkbox = item.find_element(*checkbox_locator)
+            
+            # 获取复选框当前状态
+            is_checked = checkbox.get_attribute("checked") == "true"
+            
+            # 如果未选中，则根据指定方式操作
+            if not is_checked:
+                if click_method == "click":
+                    checkbox.click()
+                elif click_method == "long_press":
+                    self.long_press(checkbox, long_press_duration)
+                
+                # 记录日志
+                self._log_file_selection(item, filename_element_locator, click_method, long_press_duration)
+                return True
+            else:
+                self._log_file_already_selected(item, filename_element_locator)
+                return False
+        
+        except Exception as e:
+            logger.error(f"选择文件项时出错: {str(e)}")
+            return False
+    
+    def _log_file_selection(self, item, filename_element_locator, click_method, long_press_duration):
+        """记录文件选择日志"""
+        try:
+            filename_element = item.find_element(*filename_element_locator)
+            filename = filename_element.text
+            if click_method == "click":
+                logger.info(f"点击选择文件: {filename}")
+            else:
+                logger.info(f"长按选择文件: {filename} (持续时间: {long_press_duration}ms)")
+        except:
+            if click_method == "click":
+                logger.info("点击选择文件（无法获取文件名）")
+            else:
+                logger.info(f"长按选择文件（无法获取文件名）(持续时间: {long_press_duration}ms)")
+    
+    def _log_file_already_selected(self, item, filename_element_locator):
+        """记录文件已选中日志"""
+        try:
+            filename_element = item.find_element(*filename_element_locator)
+            filename = filename_element.text
+            logger.info(f"文件已选中: {filename}")
+        except:
+            logger.info("文件已选中（无法获取文件名）")
+    
+    def _navigate_to_next_page(self, next_button_locator, click_method, long_press_duration):
+        """导航到下一页"""
+        if click_method == "click":
+            self.click(next_button_locator)
+        elif click_method == "long_press":
+            self.long_press_element(next_button_locator, long_press_duration)
+        
+        logger.info(f"已{click_method}下一页")
+        
+        # 等待页面加载
+        time.sleep(2)
+    
+    def _all_targets_found(self, target_filenames, selected_count):
+        """检查是否已找到所有目标文件"""
+        # 这个方法需要根据你的具体逻辑实现
+        # 这里只是一个示例实现，你可能需要根据实际情况调整
+        return selected_count >= len(target_filenames)
+    
+    def long_press_element(self, element_or_locator, duration=1000):
+        """
+        长按元素
+
+        :param element_or_locator: 元素对象或定位器
+        :param duration: 长按持续时间（毫秒）
+        """
+        try:
+            # 如果传入的是定位器，先找到元素
+            if isinstance(element_or_locator, tuple):
+                element = self.driver.find_element(*element_or_locator)
+            else:
+                element = element_or_locator
+            
+            # 使用W3C Actions实现长按
+            from selenium.webdriver.common.action_chains import ActionChains
+            from selenium.webdriver.common.actions.action_builder import ActionBuilder
+            from selenium.webdriver.common.actions.pointer_input import PointerInput
+            from selenium.webdriver.common.actions.interaction import POINTER_TOUCH
+            
+            # 获取元素位置
+            location = element.location
+            size = element.size
+            x = location['x'] + size['width'] // 2
+            y = location['y'] + size['height'] // 2
+            
+            # 使用你的_tap_w3c_actions方法（如果支持长按）
+            if hasattr(self, '_tap_w3c_actions'):
+                self._tap_w3c_actions(x, y, duration)
+            else:
+                # 备用方案：使用ActionChains
+                actions = ActionChains(self.driver)
+                actions.click_and_hold(element).pause(duration / 1000).release().perform()
+        
+        except Exception as e:
+            logger.error(f"长按元素失败: {e}")
+            raise
+    
+    def _all_targets_found(self, target_filenames, selected_count):
+        """
+        检查是否已经找到所有目标文件
+
+        :param target_filenames: 目标文件列表
+        :param selected_count: 已选择的文件数量
+        :return: 是否已找到所有目标文件
+        """
+        if not target_filenames:  # 如果目标文件列表为空
+            return False
+        
+        # 如果已选择的数量等于目标文件数量，则认为已找到所有文件
+        return selected_count >= len(target_filenames)
+    
+    def identify_popup_type_simple(self):
+        """简单识别弹窗类型"""
+        try:
+            # 获取当前页面结构信息
+            page_source = self.driver.page_source.lower()
+            window_size = self.driver.get_window_size()
+            screen_width = window_size['width']
+            screen_height = window_size['height']
+            
+            # 尝试查找弹窗根元素
+            popup_selectors = [
+                "//*[contains(@class, 'dialog')]",
+                "//*[contains(@class, 'modal')]",
+                "//*[contains(@class, 'popup')]",
+                "//*[contains(@class, 'sheet')]",
+                "//*[contains(@class, 'bottom')]",
+                "//*[contains(@resource-id, 'dialog')]",
+                "//*[contains(@resource-id, 'modal')]",
+                "//*[contains(@resource-id, 'popup')]"
+            ]
+            
+            popup_element = None
+            for selector in popup_selectors:
+                try:
+                    element = self.driver.find_element_by_xpath(selector)
+                    if element.is_displayed():
+                        popup_element = element
+                        break
+                except:
+                    continue
+            
+            # 根据特征判断类型
+            if popup_element:
+                location = popup_element.location
+                size = popup_element.size
+                
+                # 检查位置特征
+                if location['y'] + size['height'] > screen_height * 0.7:
+                    return "底部弹窗 (Bottom Sheet)"
+                elif size['width'] > screen_width * 0.9 and size['height'] > screen_height * 0.9:
+                    return "全屏弹窗 (Full Screen)"
+                elif "dialog" in page_source or "alert" in page_source:
+                    return "对话框 (Dialog)"
+                elif "toast" in page_source:
+                    return "吐司提示 (Toast)"
+                else:
+                    return f"未知弹窗 (位置: {location}, 大小: {size})"
+            else:
+                # 如果没有找到明显的弹窗元素，检查页面变化
+                if "选择" in self.driver.page_source or "选项" in self.driver.page_source:
+                    return "选择菜单 (Option Menu)"
+                else:
+                    return "无可见弹窗或弹窗元素未识别"
+        
+        except Exception as e:
+            logger.error(f"识别弹窗类型失败: {e}")
+            return f"识别错误: {str(e)}"
+    
+    def _tap_w3c_actions(self, x, y, duration=None):
+        """使用修正后的W3C Actions标准"""
+        try:
+            from selenium.webdriver.common.action_chains import ActionChains
+            from selenium.webdriver.common.actions.action_builder import ActionBuilder
+            from selenium.webdriver.common.actions.pointer_input import PointerInput
+            from selenium.webdriver.common.actions.interaction import POINTER_TOUCH
+            
+            # 创建触摸指针输入
+            pointer_input = PointerInput(POINTER_TOUCH, "touch")
+            actions = ActionChains(self.driver)
+            actions.w3c_actions = ActionBuilder(self.driver, mouse=pointer_input)
+            
+            # 移动到指定位置
+            actions.w3c_actions.pointer_action.move_to_location(x, y)
+            # 按下
+            actions.w3c_actions.pointer_action.pointer_down()
+            
+            # 处理持续时间（长按）
+            if duration:
+                actions.w3c_actions.pointer_action.pause(duration / 1000)
+            else:
+                actions.w3c_actions.pointer_action.pause(0.1)
+            
+            # 释放
+            actions.w3c_actions.pointer_action.pointer_up()
+            # 执行操作
+            actions.perform()
+        
+        except Exception as e:
+            print(f"W3C Actions 执行失败: {e}")
+            # 可以在这里添加回退方案
+            raise
+    
+    def click_through_coordinates(self, x, y, duration=None):
+        self._tap_w3c_actions(x, y, duration)
+        logger.info(f"点击坐标：{x}，{y}")
