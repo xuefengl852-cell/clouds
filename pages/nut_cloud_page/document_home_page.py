@@ -157,18 +157,82 @@ class DocumentHomePage(BasePage):
             prev_button_locator=self.pre_page
         )
     
-    def pass_document_click(self, target_filename=[]):
-        """根据文件名称全选所有页文件复选框"""
-        self.click_checkbox_by_filename(
-            self.root_layout,
-            self.file_grid_tv,
-            self.jan_grid_chb,
-            target_filename,
-            page_indicator_locator=self.page_tv,
-            next_button_locator=self.next_page,
-            select_all_pages=True,
+    def verify_single_elements_checked_false(self):
+        """
+        获取所有目标元素的checked属性值
+        """
+        try:
+            checked_value = self.get_element_attribute(
+                locator=self.jan_grid_chb,
+                attribute="checked",
+                multiple=False,  # 获取单个元素
+                condition='visible',  # 可以根据需要调整等待条件
+                timeout=10  # 设置适当的超时时间
+            )
+            
+            # 如果没有获取到值（异常情况）
+            if checked_value is None:
+                logger.error("获取checked属性失败")
+                return False
+            
+            # 如果没有找到任何元素
+            if not checked_value:
+                logger.warning("未找到任何目标元素")
+                return False
+            
+            logger.info(f"检查 {len(checked_value)} 个元素的checked属性，值: {checked_value}")
+            
+            # 如果属性值不是"true"字符串也不是True布尔值
+            if checked_value not in "false":
+                return False
+            
+            logger.info("✓ 所有元素的checked属性均为true")
+            return True
         
-        )
+        except Exception as e:
+            logger.error(f"检查元素checked属性异常：{e}")
+            self.take_screenshot("are_all_elements_checked_true_failed")
+            return False
+    
+    def verify_all_elements_checked_true(self):
+        """
+        获取所有目标元素的checked属性值
+        """
+        try:
+            checked_values = self.get_element_attribute(
+                locator=self.jan_grid_chb,
+                attribute="checked",
+                multiple=True,  # 获取多个元素
+                condition='visible',  # 可以根据需要调整等待条件
+                timeout=10  # 设置适当的超时时间
+            )
+            
+            # 如果没有获取到值（异常情况）
+            if checked_values is None:
+                logger.error("获取checked属性失败")
+                return False
+            
+            # 如果没有找到任何元素
+            if not checked_values:
+                logger.warning("未找到任何目标元素")
+                return False
+            
+            logger.info(f"检查 {len(checked_values)} 个元素的checked属性，值: {checked_values}")
+            
+            # 检查每个值是否为true（考虑字符串和布尔值两种情况）
+            for index, value in enumerate(checked_values):
+                # 如果属性值不是"true"字符串也不是True布尔值
+                if value not in ("true", True):
+                    logger.error(f"第 {index + 1} 个元素的checked属性不为true，实际值: {value} (类型: {type(value)})")
+                    return False
+            
+            logger.info("✓ 所有元素的checked属性均为true")
+            return True
+        
+        except Exception as e:
+            logger.error(f"检查元素checked属性异常：{e}")
+            self.take_screenshot("are_all_elements_checked_true_failed")
+            return False
     
     def click_transmission_button(self):
         try:

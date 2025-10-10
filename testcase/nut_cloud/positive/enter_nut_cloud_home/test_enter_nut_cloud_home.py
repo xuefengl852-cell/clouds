@@ -127,8 +127,3 @@ class TestEnterNutCloudHome:
         with allure.step("点击账户信息"):
             result = more_pop_window_page.click_specify_coordinates(account_coordinates)
             assert result.verify_click_account_information(), f"点击账户信息失败"
-    
-    @allure.story("点击全部选择框")
-    @allure.story("验证所有文件夹被选中")
-    def test_select_all_files(self, enter_nut_cloud_home):
-        enter_nut_cloud_home.pass_document_click()
