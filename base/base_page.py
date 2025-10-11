@@ -1101,3 +1101,34 @@ class BasePage:
     def click_through_coordinates(self, x, y, duration=None):
         self._tap_w3c_actions(x, y, duration)
         logger.info(f"点击坐标：{x}，{y}")
+    
+    def select_all_click(self, locator):
+        """
+        全选当前页
+        :param locator: 元素
+        :return: 全选个数
+        """
+        try:
+            elements = self.wait_for_elements(
+                locator=locator,
+                condition='clickable'
+            )
+            logger.info(f"找到 {len(elements)} 个元素，开始逐个点击...")
+            clicked_count = 0
+            for index, element in enumerate(elements):
+                try:
+                    # 确保元素可见和可点击
+                    if element.is_displayed() and element.is_enabled():
+                        element.click()
+                        clicked_count += 1
+                        logger.debug(f"成功点击第 {index + 1} 个元素")
+                    else:
+                        logger.warning(f"第 {index + 1} 元素不可点击")
+                except Exception as e:
+                    logger.error(f"点击第 {index + 1} 个元素失败: {str(e)}")
+            logger.info(f"成功点击 {clicked_count}/{len(elements)} 个元素")
+            return clicked_count
+        except Exception as e:
+            error_msg = f"点击全部元素失败：{str(e)}"
+            logger.error(error_msg)
+            raise RuntimeError(error_msg)

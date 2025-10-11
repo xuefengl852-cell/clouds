@@ -127,3 +127,19 @@ class TestEnterNutCloudHome:
         with allure.step("点击账户信息"):
             result = more_pop_window_page.click_specify_coordinates(account_coordinates)
             assert result.verify_click_account_information(), f"点击账户信息失败"
+    
+    @allure.story("点击全部选择框")
+    @allure.story("验证所有文件夹被选中")
+    def test_select_all_files(self, enter_nut_cloud_home):
+        enter_nut_cloud_home.set_skip_default_cleanup()
+        
+        def cancel_select_files():
+            enter_nut_cloud_home.navigate_back(1)
+            home_page = HomePage(enter_nut_cloud_home.driver)
+            home_page.click_cloud()
+        
+        enter_nut_cloud_home.register_cleanup(cancel_select_files)
+        
+        with allure.step("选中全部选择框"):
+            result = enter_nut_cloud_home.select_all_current_page()
+            assert result.verify_all_selected_successfully(), f"验证元素全部选中失败请重试"

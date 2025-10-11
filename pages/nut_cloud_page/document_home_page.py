@@ -76,6 +76,10 @@ class DocumentHomePage(BasePage):
         return self.get_locator(locators.PAGE_SECTION, locators.NEXT_PAGE)
     
     @property
+    def file_item_by_name(self):
+        return self.get_locator(locators.PAGE_SECTION, locators.FILE_ITEM_BY_NAME)
+    
+    @property
     def page_tv(self):
         return self.get_locator(locators.PAGE_SECTION, locators.PAGE_TV)
     
@@ -122,14 +126,6 @@ class DocumentHomePage(BasePage):
             logger.error(f"异常信息：{e}")
         return self
     
-    def verify_search_content_same(self):
-        try:
-            search_file = self.get_all_folder_texts(self.jan_list_name_tv)
-            return search_file
-        except Exception as e:
-            logger.error(f"异常信息：{e}")
-        return self
-    
     def verify_enter_search_page(self):
         search_text = self.get_element_attribute(
             self.jan_search_et,
@@ -147,6 +143,44 @@ class DocumentHomePage(BasePage):
             prev_button_locator=self.pre_page
         )
     
+    def select_all_current_page(self):
+        """
+        检查所有元素是否都被选中（主流写法）
+        :return: 布尔值，表示是否全部选中
+        """
+        try:
+            self.select_all_click(
+                self.jan_grid_chb
+            )
+        except Exception as e:
+            logger.error(f"点击元素失败：{e}")
+            raise
+        return self
+    
+    def verify_all_selected_successfully(self):
+        """
+        验证元素是否被选中
+        :return: T/F
+        """
+        try:
+            checked_values = self.get_element_attribute(
+                locator=self.jan_grid_chb,
+                attribute='checked',
+                multiple=True
+            )
+            if checked_values is None:
+                logger.error("无法获取元素选中状态")
+                return False
+            if not checked_values:
+                logger.error(f"未找到任何可验证元素")
+                return False
+            all_selected = all(value in 'true' for value in checked_values)
+            return all_selected
+        except Exception as e:
+            logger.error(f"验证元素选中状态时发生异常: {e}")
+            self.take_screenshot("verify_selection_failed")
+            return False
+    
     def get_all_search_document_names(self):
         """获取搜索所有文档名称"""
         return self.get_paginated_data(
@@ -156,83 +190,6 @@ class DocumentHomePage(BasePage):
             next_button_locator=self.next_page,
             prev_button_locator=self.pre_page
         )
-    
-    def verify_single_elements_checked_false(self):
-        """
-        获取所有目标元素的checked属性值
-        """
-        try:
-            checked_value = self.get_element_attribute(
-                locator=self.jan_grid_chb,
-                attribute="checked",
-                multiple=False,  # 获取单个元素
-                condition='visible',  # 可以根据需要调整等待条件
-                timeout=10  # 设置适当的超时时间
-            )
-            
-            # 如果没有获取到值（异常情况）
-            if checked_value is None:
-                logger.error("获取checked属性失败")
-                return False
-            
-            # 如果没有找到任何元素
-            if not checked_value:
-                logger.warning("未找到任何目标元素")
-                return False
-            
-            logger.info(f"检查 {len(checked_value)} 个元素的checked属性，值: {checked_value}")
-            
-            # 如果属性值不是"true"字符串也不是True布尔值
-            if checked_value not in "false":
-                return False
-            
-            logger.info("✓ 所有元素的checked属性均为true")
-            return True
-        
-        except Exception as e:
-            logger.error(f"检查元素checked属性异常：{e}")
-            self.take_screenshot("are_all_elements_checked_true_failed")
-            return False
-    
-    def verify_all_elements_checked_true(self):
-        """
-        获取所有目标元素的checked属性值
-        """
-        try:
-            checked_values = self.get_element_attribute(
-                locator=self.jan_grid_chb,
-                attribute="checked",
-                multiple=True,  # 获取多个元素
-                condition='visible',  # 可以根据需要调整等待条件
-                timeout=10  # 设置适当的超时时间
-            )
-            
-            # 如果没有获取到值（异常情况）
-            if checked_values is None:
-                logger.error("获取checked属性失败")
-                return False
-            
-            # 如果没有找到任何元素
-            if not checked_values:
-                logger.warning("未找到任何目标元素")
-                return False
-            
-            logger.info(f"检查 {len(checked_values)} 个元素的checked属性，值: {checked_values}")
-            
-            # 检查每个值是否为true（考虑字符串和布尔值两种情况）
-            for index, value in enumerate(checked_values):
-                # 如果属性值不是"true"字符串也不是True布尔值
-                if value not in ("true", True):
-                    logger.error(f"第 {index + 1} 个元素的checked属性不为true，实际值: {value} (类型: {type(value)})")
-                    return False
-            
-            logger.info("✓ 所有元素的checked属性均为true")
-            return True
-        
-        except Exception as e:
-            logger.error(f"检查元素checked属性异常：{e}")
-            self.take_screenshot("are_all_elements_checked_true_failed")
-            return False
     
     def click_transmission_button(self):
         try:
@@ -257,14 +214,6 @@ class DocumentHomePage(BasePage):
         except Exception as e:
             logger.error(f"异常信息：{e}")
         return self
-    
-    def verify_refresh_success(self, refresh_toast: str) -> bool:
-        try:
-            self.assert_toast(
-                refresh_toast
-            )
-        except Exception as e:
-            logger.error(f"异常信息：{e}")
     
     def click_more_button(self):
         try:

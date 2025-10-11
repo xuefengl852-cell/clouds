@@ -16,6 +16,8 @@ locators:
     jan_grid_tv: "hanvon.aebr.hanvondrive:id/janGridIv"
     #文件、文件夹名称
     file_grid_tv: "xpath://*[@resource-id='hanvon.aebr.hanvondrive:id/fileGridTv']"
+
+    file_item_by_name: "xpath://*[@resource-id='hanvon.aebr.hanvondrive:id/fileGridTv' and @text='{filename}']"
     #搜索页文件、文件夹名称
     jan_list_name_tv: "hanvon.aebr.hanvondrive:id/janListNameTv"
     #传输列表返回按钮

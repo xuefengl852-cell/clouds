@@ -27,3 +27,4 @@ class DocumentHomeLocators:
     PHONE_JA_MOVE = "phone_ja_move"
     PHONE_JAN_SEC = "phone_jan_sec"
     PHONE_JAN_DELETE = "phone_jan_delete"
+    FILE_ITEM_BY_NAME = "file_item_by_name"
