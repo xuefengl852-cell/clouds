@@ -16,8 +16,7 @@ locators:
     jan_grid_tv: "hanvon.aebr.hanvondrive:id/janGridIv"
     #文件、文件夹名称
     file_grid_tv: "xpath://*[@resource-id='hanvon.aebr.hanvondrive:id/fileGridTv']"
-
-    file_item_by_name: "xpath://*[@resource-id='hanvon.aebr.hanvondrive:id/fileGridTv' and @text='{filename}']"
+    file_grid_tv_id: "hanvon.aebr.hanvondrive:id/fileGridTv"
     #搜索页文件、文件夹名称
     jan_list_name_tv: "hanvon.aebr.hanvondrive:id/janListNameTv"
     #传输列表返回按钮
@@ -44,14 +43,38 @@ locators:
     #列表模式文件标识
     list_mode: "hanvon.aebr.hanvondrive:id/rootListLayout"
     #批量管理-复制
-    phone_ja_copy: "hanvon.aebr.hanvondrive:id/phonejaCopyTv"
+    phone_ja_copy: "hanvon.aebr.hanvondrive:id/jaCopyTv"
     #批量管理-已选择
     select_ed: "hanvon.aebr.hanvondrive:id/selectEdTv"
     #批量管理-全选
-    phone_select: "hanvon.aebr.hanvondrive:id/phoneSelectTv"
+    phone_select: "hanvon.aebr.hanvondrive:id/janSelectLayout"
     #批量管理-移动
-    phone_ja_move: "hanvon.aebr.hanvondrive:id/phonejaMoveTv"
+    phone_ja_move: "hanvon.aebr.hanvondrive:id/jaMoveTv"
     #批量管理-下载
-    phone_jan_sec: "hanvon.aebr.hanvondrive:id/phonejanSecTv"
+    phone_jan_sec: "hanvon.aebr.hanvondrive:id/janSecTv"
     #批量管理-删除
-    phone_jan_delete: "hanvon.aebr.hanvondrive:id/phonejanDeleteTv"
+    phone_jan_delete: "hanvon.aebr.hanvondrive:id/janDeleteTv"
+    #进入文件夹名称
+    tv_drive: "hanvon.aebr.hanvondrive:id/tv_drive"
+    #长按弹窗详情标题
+    dialog_title: "hanvon.aebr.hanvondrive:id/dialog_title"
+    #文件夹图标
+    cover_file_tv: "hanvon.aebr.hanvondrive:id/coverFileIv"
+    #文件夹操作栏
+    detail_grid_view: "hanvon.aebr.hanvondrive:id/detailGridView"
+    #文件夹详情页名称
+    name_file_tv: "hanvon.aebr.hanvondrive:id/nameFileTv"
+    #文件详情图标
+    ja_document_name_iv: "hanvon.aebr.hanvondrive:id/jaDocumentNameIv"
+    #文件详情标题
+    title_file_tv: "hanvon.aebr.hanvondrive:id/titleFileTv"
+    #文件详情信息
+    type_file_tv: "hanvon.aebr.hanvondrive:id/typeFileTv"
+    #文件详情大小
+    size_file_tv: "hanvon.aebr.hanvondrive:id/sizeFileTv"
+    #文件详情时间
+    time_file_tv: "hanvon.aebr.hanvondrive:id/timeFileTv"
+    #文件详情操作栏
+    item_name_tv: "hanvon.aebr.hanvondrive:id/itemNameTv"
+    #文件详情关闭
+    dialog_close: "hanvon.aebr.hanvondrive:id/dialog_close"

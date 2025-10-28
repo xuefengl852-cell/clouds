@@ -186,9 +186,12 @@ def screen_recording(request):
     try:
         # 设置录制参数
         video_options = {
-            "timeLimit": 600,  # 5分钟限制
-            "bitRate": 4000000,  # 4 Mbps
-            "videoSize": "1280x720"  # Android特有参数
+            "timeLimit": 180,  # 5分钟限制
+            "bitRate": 5000000,  # 4 Mbps
+            # 尝试添加以下参数
+            'videoType': 'mpeg4',
+            'videoScale': '1280:720',  # 调整分辨率
+            'videoFps': 30,  # 帧率
         }
         
         driver.start_recording_screen(**video_options)
@@ -569,7 +572,8 @@ def nut_cloud_login(setup, cleanup_manager):
 
 
 @pytest.fixture(scope="function")
-def enter_nut_cloud_home(app_driver, cleanup_manager):
+def enter_nut_cloud_home(request, app_driver, cleanup_manager):
+    folder_data = getattr(request, 'param', None)
     document_home_page = DocumentHomePage(app_driver)
     document_home_page.register_cleanup = cleanup_manager.register_cleanup
     document_home_page.set_skip_default_cleanup = cleanup_manager.set_skip_default_cleanup
@@ -595,3 +599,20 @@ def more_pop_window_page(app_driver, cleanup_manager):
     document_home_page.click_more_button()
     more_pop_window.register_cleanup = cleanup_manager.register_cleanup
     yield more_pop_window
+
+
+@pytest.fixture(scope="function")
+def enter_folder_page(request, app_driver, cleanup_manager):
+    folder_data = getattr(request, 'param', None)
+    folder1, folder2 = folder_data
+    document_home_page = DocumentHomePage(app_driver)
+    document_home_page.enter_file_page(folder1)
+    document_home_page.enter_file_page(folder2)
+    document_home_page.register_cleanup = cleanup_manager.register_cleanup
+    document_home_page.set_skip_default_cleanup = cleanup_manager.set_skip_default_cleanup
+    yield document_home_page
+    if not cleanup_manager.skip_default_cleanup:
+        try:
+            document_home_page.navigate_back(1)
+        except Exception as e:
+            logger.info(f"默认清理失败: {e}")

@@ -3,5 +3,15 @@
     "x": 660,
     "y": 539,
     "description": "Clear Mobile账户管理"
+  },
+  "19.20": {
+    "x": 1048,
+    "y": 557,
+    "description": "Clear 7账户管理"
+  },
+  "21.50": {
+    "x": 1046,
+    "y": 800,
+    "description": "M10 账户管理"
   }
 }

@@ -3,5 +3,15 @@
     "x": 667,
     "y": 363,
     "description": "Clear Mobile批量管理"
+  },
+  "19.20": {
+    "x": 1066,
+    "y": 366,
+    "description": "Clear 7批量管理"
+  },
+  "21.50": {
+    "x": 1546,
+    "y": 535,
+    "description": "M10 批量管理"
   }
 }

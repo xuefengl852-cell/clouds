@@ -1,7 +1,17 @@
 {
-    "22.00": {
-        "x": 668,
-        "y": 442,
-        "description": "Clear Mobile排序"
-    }
+  "22.00": {
+    "x": 668,
+    "y": 442,
+    "description": "Clear Mobile排序"
+  },
+  "19.20": {
+    "x": 1048,
+    "y": 469,
+    "description": "Clear 7"
+  },
+  "21.50": {
+    "x": 1498,
+    "y": 676,
+    "description": "Clear 7"
+  }
 }

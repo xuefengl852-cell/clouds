@@ -3,5 +3,15 @@
     "x": 655,
     "y": 281,
     "description": "Clear Mobile列表模式"
+  },
+  "19.20": {
+    "x": 1055,
+    "y": 286,
+    "description": "Clear 7列表模式"
+  },
+  "21.50": {
+    "x": 1546,
+    "y": 406,
+    "description": "M10 列表模式"
   }
 }

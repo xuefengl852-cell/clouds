@@ -27,7 +27,7 @@ class BasePage:
     BASE_DIR = Path(__file__).resolve().parent.parent
     # 定位器类型映射
     LOCATOR_MAPPING = {
-        "id": By.ID,
+        "id": AppiumBy.ID,
         "xpath": AppiumBy.XPATH,
         "class_name": By.CLASS_NAME,
         "css_selector": By.CSS_SELECTOR,
@@ -1132,3 +1132,135 @@ class BasePage:
             error_msg = f"点击全部元素失败：{str(e)}"
             logger.error(error_msg)
             raise RuntimeError(error_msg)
+    
+    def click_based_on_the_file_name(self, root_layout_locator, file_name_locator, checkbox_locator, filenames):
+        """
+        根据多个文件名点击对应的元素
+
+        :param root_layout_locator: 父定位器
+        :param file_name_locator: 文件名称定位器
+        :param checkbox_locator: 被点击元素定位器
+        :param filenames: 文件名称列表，如 ["file1.pdf", "file2.jpg"]
+        :return: 成功点击的文件数量
+        """
+        success_count = 0
+        try:
+            # 找到所有文件项
+            file_items = self.driver.find_elements(*root_layout_locator)
+            logger.info(f"=============共有{len(file_items)}个文件项")
+            # 遍历每个目标文件名
+            for target_filename in filenames:
+                found = False
+                # 在每个文件项中查找匹配的文件名
+                for item in file_items:
+                    try:
+                        name_element = item.find_element(*file_name_locator)
+                        current_filename = name_element.text
+                        
+                        if current_filename == target_filename:
+                            checkbox_element = item.find_element(*checkbox_locator)
+                            checkbox_element.click()
+                            logger.info(f"成功点击文件: {target_filename}")
+                            success_count += 1
+                            found = True
+                            break  # 找到后跳出内层循环
+                    except Exception as e:
+                        logger.debug(f"处理文件项时出错: {e}")
+                        continue
+                
+                if not found:
+                    logger.warning(f"未找到文件: {target_filename}")
+            
+            logger.info(f"成功点击了 {success_count} 个文件")
+            return success_count
+        
+        except Exception as e:
+            logger.error(f"点击多个文件时失败：{e}")
+            return success_count
+    
+    def long_press_based_on_the_file_name(self, root_layout_locator, file_name_locator, target_locator, filename,
+                                          long_press_duration=2000):
+        """
+        根据多个文件名长按对应的元素
+
+        :param root_layout_locator: 父定位器
+        :param file_name_locator: 文件名称定位器
+        :param target_locator: 被长按元素定位器
+        :param filename: 文件名称列表
+        :param long_press_duration: 长按持续时间（毫秒），默认2000毫秒（2秒）
+        :return: 成功长按的文件数量
+        """
+        try:
+            # 找到所有文件项
+            file_items = self.driver.find_elements(*root_layout_locator)
+            logger.info(f"=============共有{len(file_items)}个文件项")
+            
+            # 创建ActionChains对象
+            actions = ActionChains(self.driver)
+            
+            # 遍历每个目标文件名
+            for target_filename in filename:
+                # 在每个文件项中查找匹配的文件名
+                for item in file_items:
+                    try:
+                        name_element = item.find_element(*file_name_locator)
+                        current_filename = name_element.text
+                        
+                        if current_filename == target_filename:
+                            target_element = item.find_element(*target_locator)
+                            
+                            # 执行长按操作
+                            actions.click_and_hold(target_element).pause(long_press_duration / 1000).release().perform()
+                            
+                            logger.info(f"成功长按文件: {target_filename}，持续时间: {long_press_duration}ms")
+                            
+                            # 长按后可能需要短暂等待
+                            time.sleep(0.5)
+                            
+                            break  # 找到后跳出内层循环
+                    
+                    except Exception as e:
+                        logger.debug(f"处理文件项时出错: {e}")
+                        continue
+        except Exception as e:
+            logger.error(f"长按多个文件时失败：{e}")
+    
+    def get_locator_checked_status(self, root_layout_locator, file_name_locator, checkbox_locator, filenames):
+        """
+        根据多个文件名获取对应的复选框状态
+        :return: 字典格式 {文件名: 选中状态}
+        """
+        status_dict = {}
+        try:
+            file_items = self.driver.find_elements(*root_layout_locator)
+            logger.info(f"共有{len(file_items)}个文件项")
+            
+            for target_filename in filenames:
+                found = False
+                for item in file_items:
+                    try:
+                        name_element = item.find_element(*file_name_locator)
+                        current_filename = name_element.text
+                        
+                        if current_filename == target_filename:
+                            checkbox_element = item.find_element(*checkbox_locator)
+                            # 获取选中状态
+                            status = checkbox_element.get_attribute("checked")
+                            status_dict[target_filename] = status
+                            found = True
+                            logger.info(f"文件 {target_filename} 状态: {status}")
+                            break
+                    except Exception as e:
+                        logger.debug(f"处理文件项时出错: {e}")
+                        continue
+                
+                if not found:
+                    logger.warning(f"未找到文件: {target_filename}")
+                    status_dict[target_filename] = "未找到"
+            
+            return status_dict
+        
+        except Exception as e:
+            logger.error(f"获取文件状态时发生异常: {e}")
+            # 返回默认状态字典
+            return {filename: "获取失败" for filename in filenames}
