@@ -30,7 +30,7 @@ search_mode_data = load_test_data("search_mode_data.json")
     # 指定参数传递给对应的fixture
     indirect=["input_name", "check_test_data"]
 )
-@pytest.mark.run(order=14)
+@pytest.mark.run(order=12)
 @allure.story("搜索结果交互")
 class TestCheckboxOperations:
     

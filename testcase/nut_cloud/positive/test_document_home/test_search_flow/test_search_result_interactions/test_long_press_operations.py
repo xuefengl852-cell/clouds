@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 @allure.story("搜索页文件长按")
-@pytest.mark.run(order=15)
+@pytest.mark.run(order=13)
 class TestLongPressOperations:
     @allure.title("根据搜索结果长按文件")
     @pytest.mark.parametrize(

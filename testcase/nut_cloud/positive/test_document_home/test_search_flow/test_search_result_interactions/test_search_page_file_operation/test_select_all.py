@@ -7,7 +7,7 @@ check_data = load_test_data("search_results_check_data.json")
 
 
 @allure.story("勾选文件后进行文件全选操作")
-@pytest.mark.run(order=16)
+@pytest.mark.run(order=14)
 class TestSelectAll:
     @pytest.mark.parametrize(
         "check_test_data",  # 参数名（对应fixture名）

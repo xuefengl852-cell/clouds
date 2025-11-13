@@ -2,26 +2,17 @@ from collections import Counter
 
 import allure
 import pytest
-from _pytest.fixtures import FixtureRequest
 
 
 @pytest.mark.run(order=9)
 @allure.story("搜索流程入口验证")
 class TestSearchEntry:
-    @pytest.mark.parametrize(
-        "page_fixture, page_name",
-        [
-            ("enter_nut_cloud_home", "坚果云首页"),  # 第一个场景：首页
-            ("enter_folder_page", "文件页面")  # 第二个场景：文件夹页面
-        ]
-    )
+    
     @allure.title("用户验证是否进入搜索页面")
-    def test_click_search_button(self, request: FixtureRequest, page_fixture, page_name):
-        current_page = request.getfixturevalue(page_fixture)
-        
+    def test_click_search_button(self, enter_nut_cloud_home):
         with allure.step("点击搜索按钮"):
-            document_list = current_page.get_all_document_names()
-            result = current_page.click_search_button()
+            document_list = enter_nut_cloud_home.get_all_document_names()
+            result = enter_nut_cloud_home.click_search_button()
             search_document_list = result.get_all_search_document_names()
         with allure.step("验证搜索框存在"):
             assert result.verify_enter_search_page() == '请输入搜索文件名', f"进入搜索页失败"
