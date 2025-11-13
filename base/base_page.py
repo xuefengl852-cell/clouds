@@ -7,7 +7,8 @@ from pathlib import Path
 from typing import ClassVar, Dict, Optional
 
 from appium.webdriver.common.appiumby import AppiumBy
-from selenium.common.exceptions import TimeoutException, InvalidElementStateException, StaleElementReferenceException
+from selenium.common.exceptions import TimeoutException, InvalidElementStateException, StaleElementReferenceException, \
+    NoSuchElementException
 from selenium.webdriver import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
@@ -105,6 +106,10 @@ class BasePage:
         )
         self.device_id = device_id or driver.capabilities.get('udid')
         logger.info(f"初始化页面: {self.__class__.__name__} | 平台: {self.platform}")
+        self.windows_width = self.driver.get_window_size()['width']
+        logger.info(f"当前设备窗口尺寸X为：{self.windows_width}")
+        self.windows_height = self.driver.get_window_size()['height']
+        logger.info(f"当前设备窗口尺寸Y为：{self.windows_height}")
     
     def _execute_adb(self, command):
         """执行ADB命令（带错误处理）"""
@@ -243,6 +248,12 @@ class BasePage:
             logger.error(f"元素定位异常: {str(e)}")
             # 关键修改：抛出原始异常
             raise
+    
+    def get_window_size(self):
+        """获取窗口尺寸大小"""
+        if not hasattr(self, '_window_size') or not self._window_size:
+            self._window_size = self.driver.get_window_size()
+        return self._window_size
     
     def find_by_text_element(self, text, context_locator=None, timeout=None):
         """
@@ -817,7 +828,7 @@ class BasePage:
             # 关键修改：重新抛出异常
             raise
     
-    def get_paginated_data(self, page_indicator_locator, section, key, next_button_locator, prev_button_locator=None):
+    def get_paginated_data(self, page_indicator_locator, section, key, next_button_locator):
         """
         通用分页数据获取方法，并在结束后恢复页面到初始状态
 
@@ -825,7 +836,6 @@ class BasePage:
         :param section: 数据部分
         :param page_indicator_locator: 页码指示器元素定位器
         :param next_button_locator: 下一页按钮定位器
-        :param prev_button_locator: 上一页按钮定位器（可选，如果不提供则无法恢复页面状态）
         :return: 所有页面数据的列表
         """
         try:
@@ -835,12 +845,6 @@ class BasePage:
             current_page = int(current_page_str)
             total_pages = int(total_pages_str)
             logger.info(f"当前页: {current_page}, 总页数: {total_pages}")
-            
-            # 记录初始页面
-            initial_page = current_page
-            
-            # 记录点击下一页的次数
-            next_clicks = 0
             
             for page_num in range(current_page, total_pages + 1):
                 logger.info(f"正在处理第 {page_num} 页")
@@ -856,43 +860,16 @@ class BasePage:
                 # 如果不是最后一页，点击下一页
                 if page_num < total_pages:
                     self.click(next_button_locator)
-                    next_clicks += 1
                     logger.info("已点击下一页")
                     
                     # 等待页面加载
                     time.sleep(1)  # 根据实际情况调整等待时间
             
             logger.info(f"总共找到 {len(all_data)} 条数据")
-            logger.info(f"总共点击了 {next_clicks} 次下一页")
-            
-            # 恢复页面到初始状态
-            if prev_button_locator and next_clicks > 0:
-                logger.info("正在恢复页面到初始状态...")
-                for _ in range(next_clicks):
-                    try:
-                        self.click(prev_button_locator)
-                        logger.info("已点击上一页")
-                        time.sleep(0.5)  # 短暂等待页面切换
-                    except Exception as e:
-                        logger.error(f"点击上一页时出错: {str(e)}")
-                        break
             
             return all_data
         except Exception as e:
             logger.error(f"获取分页数据时出错: {str(e)}")
-            
-            # 即使出错也尝试恢复页面状态
-            if prev_button_locator and next_clicks > 0:
-                logger.info("尝试在出错后恢复页面状态...")
-                for _ in range(next_clicks):
-                    try:
-                        self.click(prev_button_locator)
-                        logger.info("已点击上一页")
-                        time.sleep(0.5)
-                    except Exception as e:
-                        logger.error(f"恢复页面状态时出错: {str(e)}")
-                        break
-            
             raise
     
     def get_all_folder_texts(self, section, key):
@@ -1133,97 +1110,291 @@ class BasePage:
             logger.error(error_msg)
             raise RuntimeError(error_msg)
     
-    def click_based_on_the_file_name(self, root_layout_locator, file_name_locator, checkbox_locator, filenames):
+    def click_based_on_the_file_name(self, root_layout_locator, file_name_locator, checkbox_locator, filenames,
+                                     current_page: int, all_pages: int,
+                                     next_page_locator=None):
         """
-        根据多个文件名点击对应的元素
+        根据多个文件名点击对应的元素（支持分页查找）
 
+        :param all_pages: 所有页
+        :param current_page: 当前页
         :param root_layout_locator: 父定位器
         :param file_name_locator: 文件名称定位器
         :param checkbox_locator: 被点击元素定位器
         :param filenames: 文件名称列表，如 ["file1.pdf", "file2.jpg"]
+        :param next_page_locator: 下一页按钮定位器（如无分页可省略）
         :return: 成功点击的文件数量
         """
         success_count = 0
+        remaining_filenames = filenames.copy()  # 记录未找到的文件名，避免重复查找
+        
         try:
-            # 找到所有文件项
-            file_items = self.driver.find_elements(*root_layout_locator)
-            logger.info(f"=============共有{len(file_items)}个文件项")
-            # 遍历每个目标文件名
-            for target_filename in filenames:
-                found = False
-                # 在每个文件项中查找匹配的文件名
-                for item in file_items:
-                    try:
-                        name_element = item.find_element(*file_name_locator)
-                        current_filename = name_element.text
-                        
-                        if current_filename == target_filename:
-                            checkbox_element = item.find_element(*checkbox_locator)
-                            checkbox_element.click()
-                            logger.info(f"成功点击文件: {target_filename}")
-                            success_count += 1
-                            found = True
-                            break  # 找到后跳出内层循环
-                    except Exception as e:
-                        logger.debug(f"处理文件项时出错: {e}")
-                        continue
+            while remaining_filenames and current_page <= all_pages:
+                # 1. 获取当前页的所有文件项
+                file_items = self.driver.find_elements(*root_layout_locator)
+                logger.info(f"第{current_page}页共有{len(file_items)}个文件项")
                 
-                if not found:
-                    logger.warning(f"未找到文件: {target_filename}")
+                # 2. 遍历当前页的文件项，查找剩余目标文件
+                for target_filename in list(remaining_filenames):  # 用list避免遍历中修改列表报错
+                    found = False
+                    for item in file_items:
+                        try:
+                            name_element = item.find_element(*file_name_locator)
+                            current_filename = name_element.text.strip()  # 去除空格，避免匹配误差
+                            
+                            if current_filename == target_filename:
+                                # 找到目标文件，点击复选框
+                                checkbox_element = item.find_element(*checkbox_locator)
+                                checkbox_element.click()
+                                logger.info(f"第{current_page}页：成功点击文件: {target_filename}")
+                                success_count += 1
+                                remaining_filenames.remove(target_filename)  # 从剩余列表中移除
+                                found = True
+                                break  # 跳出内层循环，继续下一个目标文件
+                        except Exception as e:
+                            logger.debug(f"处理第{current_page}页文件项时出错: {e}")
+                            continue
+                    
+                    if not found:
+                        logger.debug(f"第{current_page}页未找到文件: {target_filename}")
+                
+                # 3. 如果还有未找到的文件，且有下一页，执行翻页
+                if remaining_filenames and next_page_locator:
+                    try:
+                        # 点击下一页
+                        next_page_btn = self.driver.find_element(*next_page_locator)
+                        next_page_btn.click()
+                        logger.info(f"翻到第{current_page + 1}页")
+                        current_page += 1
+                        # 等待新页面加载完成（根据实际页面调整等待时间或条件）
+                        self.driver.implicitly_wait(2)  # 简单等待，推荐用WebDriverWait显式等待
+                    except Exception as e:
+                        logger.warning(f"无法翻到第{current_page + 1}页（可能是最后一页）: {e}")
+                        break  # 翻页失败，退出循环
+                else:
+                    break  # 无下一页或已找到所有文件，退出循环
             
-            logger.info(f"成功点击了 {success_count} 个文件")
+            # 4. 处理未找到的文件
+            for filename in remaining_filenames:
+                logger.warning(f"所有页面均未找到文件: {filename}")
+            
+            logger.info(f"总成功点击了 {success_count} 个文件")
             return success_count
         
         except Exception as e:
             logger.error(f"点击多个文件时失败：{e}")
             return success_count
     
-    def long_press_based_on_the_file_name(self, root_layout_locator, file_name_locator, target_locator, filename,
-                                          long_press_duration=2000):
+    import logging
+    
+    logger = logging.getLogger(__name__)
+    
+    def long_press_based_on_the_file_name(self, root_layout_locator, file_name_locator, target_locator, filenames,
+                                          current_page: int, all_pages: int,
+                                          long_press_duration=2000, next_page_locator=None):
         """
-        根据多个文件名长按对应的元素
+        根据多个文件名长按对应的元素（支持分页查找）
 
         :param root_layout_locator: 父定位器
         :param file_name_locator: 文件名称定位器
         :param target_locator: 被长按元素定位器
-        :param filename: 文件名称列表
-        :param long_press_duration: 长按持续时间（毫秒），默认2000毫秒（2秒）
+        :param filenames: 文件名称列表，如 ["file1.pdf", "file2.jpg"]
+        :param current_page: 当前页（起始页，如1）
+        :param all_pages: 总页数（最大翻页上限）
+        :param long_press_duration: 长按持续时间（毫秒），默认2000ms
+        :param next_page_locator: 下一页按钮定位器（无分页可省略）
         :return: 成功长按的文件数量
         """
+        success_count = 0
+        remaining_filenames = filenames.copy()  # 记录未找到的文件名，避免重复查找
+        actions = ActionChains(self.driver)  # 初始化动作链（复用，提高效率）
+        
         try:
-            # 找到所有文件项
-            file_items = self.driver.find_elements(*root_layout_locator)
-            logger.info(f"=============共有{len(file_items)}个文件项")
-            
-            # 创建ActionChains对象
-            actions = ActionChains(self.driver)
-            
-            # 遍历每个目标文件名
-            for target_filename in filename:
-                # 在每个文件项中查找匹配的文件名
-                for item in file_items:
-                    try:
-                        name_element = item.find_element(*file_name_locator)
-                        current_filename = name_element.text
-                        
-                        if current_filename == target_filename:
-                            target_element = item.find_element(*target_locator)
+            while remaining_filenames and current_page <= all_pages:
+                # 1. 获取当前页的所有文件项
+                file_items = self.driver.find_elements(*root_layout_locator)
+                logger.info(f"第{current_page}页共有{len(file_items)}个文件项")
+                
+                # 2. 遍历当前页的文件项，查找剩余目标文件
+                for target_filename in list(remaining_filenames):  # 用list避免遍历中修改列表报错
+                    found = False
+                    for item in file_items:
+                        try:
+                            # 获取当前文件项的文件名
+                            name_element = item.find_element(*file_name_locator)
+                            current_filename = name_element.text.strip()  # 去除空格，提高匹配精度
                             
-                            # 执行长按操作
-                            actions.click_and_hold(target_element).pause(long_press_duration / 1000).release().perform()
-                            
-                            logger.info(f"成功长按文件: {target_filename}，持续时间: {long_press_duration}ms")
-                            
-                            # 长按后可能需要短暂等待
-                            time.sleep(0.5)
-                            
-                            break  # 找到后跳出内层循环
+                            if current_filename == target_filename:
+                                logger.info(
+                                    f"对比文件名：目标={target_filename} | 页面实际={current_filename},对比文件名：目标；类型={type(target_filename)} | 页面实际={type(current_filename)}")
+                                # 找到目标文件，执行长按操作
+                                target_element = item.find_element(*target_locator)
+                                actions.click_and_hold(target_element) \
+                                    .pause(long_press_duration / 1000) \
+                                    .release() \
+                                    .perform()
+                                
+                                logger.info(
+                                    f"第{current_page}页：成功长按文件: {target_filename}，持续时间: {long_press_duration}ms")
+                                success_count += 1
+                                remaining_filenames.remove(target_filename)  # 从剩余列表移除
+                                found = True
+                                break  # 跳出内层循环，继续下一个目标文件
+                        except Exception as e:
+                            logger.error(f"处理第{current_page}页文件项时出错: {e}")
+                            continue
                     
+                    if not found:
+                        logger.error(f"第{current_page}页未找到文件: {target_filename}")
+                
+                # 3. 若还有未找到的文件，且有下一页，执行翻页
+                if remaining_filenames and next_page_locator:
+                    try:
+                        # 点击下一页按钮
+                        next_page_btn = self.driver.find_element(*next_page_locator)
+                        next_page_btn.click()
+                        logger.info(f"翻到第{current_page + 1}页")
+                        current_page += 1
+                        # 等待新页面加载（推荐用WebDriverWait显式等待，这里简化为隐式等待）
+                        self.driver.implicitly_wait(2)
                     except Exception as e:
-                        logger.debug(f"处理文件项时出错: {e}")
-                        continue
+                        logger.warning(f"无法翻到第{current_page + 1}页（可能是最后一页）: {e}")
+                        break  # 翻页失败，退出循环
+                else:
+                    break  # 无下一页或已找到所有文件，退出循环
+            
+            # 4. 处理未找到的文件
+            for filename in remaining_filenames:
+                logger.warning(f"所有页面均未找到文件: {filename}")
+            
+            logger.info(f"总成功长按了 {success_count} 个文件")
+            return success_count
+        
         except Exception as e:
             logger.error(f"长按多个文件时失败：{e}")
+            return success_count
+    
+    def get_file_attributes(self, root_layout_locator, file_name_locator, attribute_locator, filenames,
+                            current_page: int, all_pages: int, attribute, next_page_locator=None):
+        """
+        根据文件名列表获取对应文件的属性（支持分页查找）
+        :param root_layout_locator: 父容器定位器（元组，如("xpath", "//div[@class='file-list']")）
+        :param file_name_locator: 文件名元素定位器（元组，如("id", "name_tv")）
+        :param attribute_locator: 目标属性元素定位器（元组，如("id", "info_tv")）
+        :param filenames: 文件名列表（如["file1.pdf"]）或单个文件名（如"file1.pdf"）
+        :param current_page: 当前起始页（int，如1）
+        :param all_pages: 最大翻页上限（int，如5）
+        :param attribute: 要获取的属性名（如"text"、"resourceId"）
+        :param next_page_locator: 下一页按钮定位器（元组，如("xpath", "//button[text()='下一页']")）
+        :return: 属性值列表（若输入单个文件名，返回长度为1的列表；未找到返回空列表）
+        """
+        # 支持单个文件名输入（自动转为列表处理）
+        if isinstance(filenames, str):
+            filenames = [filenames]
+        remaining_filenames = filenames.copy()
+        attribute_results = []  # 存储所有成功获取的属性值
+        supported_strategies = ["id", "xpath", "class name", "accessibility id", "css selector"]  # 支持的定位策略
+        
+        try:
+            # 1. 验证所有定位器策略是否合法
+            for locator in [root_layout_locator, file_name_locator, attribute_locator, next_page_locator]:
+                if locator is None:
+                    continue
+                strategy = locator[0].lower()
+                if strategy not in supported_strategies:
+                    raise ValueError(f"不支持的定位器策略: '{strategy}'，支持的策略：{supported_strategies}")
+            
+            # 2. 分页查找文件并获取属性
+            while remaining_filenames and current_page <= all_pages:
+                # 显式等待当前页文件列表加载完成（替代隐式等待，更可靠）
+                try:
+                    WebDriverWait(self.driver, 10).until(
+                        EC.presence_of_all_elements_located(root_layout_locator)
+                    )
+                except TimeoutException:
+                    logger.warning(f"第{current_page}页文件列表加载超时，跳过当前页")
+                    current_page += 1
+                    continue
+                
+                # 获取当前页所有文件项
+                file_items = self.driver.find_elements(*root_layout_locator)
+                logger.info(f"第{current_page}页共有{len(file_items)}个文件项")
+                
+                # 遍历当前页文件项，匹配目标文件名
+                for target_filename in list(remaining_filenames):
+                    found = False
+                    for item in file_items:
+                        try:
+                            # 查找当前文件项的文件名元素
+                            name_element = item.find_element(*file_name_locator)
+                            current_filename = name_element.text.strip()
+                            
+                            if current_filename == target_filename:
+                                # 找到目标文件，获取其属性元素的属性值
+                                try:
+                                    # 显式等待属性元素可见
+                                    attr_element = WebDriverWait(item, 5).until(
+                                        EC.visibility_of_element_located(attribute_locator)
+                                    )
+                                    attribute_value = attr_element.get_attribute(attribute)
+                                    # 处理文本属性的空白（如" 2025-11-04 09:19:46 " → "2025-11-04 09:19:46"）
+                                    if attribute == "text" and attribute_value:
+                                        attribute_value = attribute_value.strip()
+                                    attribute_results.append(attribute_value)
+                                    logger.info(
+                                        f"第{current_page}页：成功获取文件[{target_filename}]的属性 → {attribute_value}"
+                                    )
+                                    remaining_filenames.remove(target_filename)
+                                    found = True
+                                    break  # 跳出当前文件项循环，继续下一个文件名
+                                except (TimeoutException, NoSuchElementException) as attr_e:
+                                    logger.error(
+                                        f"文件[{target_filename}]的属性元素查找失败：{attr_e}，定位器：{attribute_locator}"
+                                    )
+                                    # 属性获取失败但文件已找到，不再重复查找
+                                    remaining_filenames.remove(target_filename)
+                                    found = True
+                                    break
+                        except NoSuchElementException:
+                            logger.debug(f"文件项中未找到文件名元素（定位器：{file_name_locator}），跳过当前项")
+                            continue
+                        except Exception as e:
+                            logger.debug(f"处理第{current_page}页文件项时出错：{e}，继续下一项")
+                            continue
+                    
+                    if not found:
+                        logger.debug(f"第{current_page}页未找到文件：{target_filename}")
+                
+                # 3. 翻页逻辑（若还有未找到的文件）
+                if remaining_filenames and next_page_locator:
+                    try:
+                        # 显式等待下一页按钮可点击
+                        next_page_btn = WebDriverWait(self.driver, 5).until(
+                            EC.element_to_be_clickable(next_page_locator)
+                        )
+                        next_page_btn.click()
+                        logger.info(f"翻到第{current_page + 1}页")
+                        current_page += 1
+                    except (TimeoutException, NoSuchElementException) as e:
+                        logger.warning(f"无法翻到第{current_page + 1}页（可能是最后一页）：{e}")
+                        break  # 翻页失败，终止循环
+                else:
+                    break  # 无下一页或已找到所有文件，终止循环
+            
+            # 4. 记录未找到的文件
+            for filename in remaining_filenames:
+                logger.warning(f"所有页面（共{all_pages}页）均未找到文件：{filename}")
+            
+            logger.info(f"总成功获取{len(attribute_results)}/{len(filenames)}个文件的属性")
+            return attribute_results
+        
+        except ValueError as ve:
+            # 定位器策略错误（提前暴露配置问题）
+            logger.error(f"参数错误：{ve}")
+            raise  # 抛出错误，让调用方感知配置问题
+        except Exception as e:
+            logger.error(f"获取文件属性时发生未知错误：{e}")
+            return attribute_results  # 即使出错，也返回已成功获取的结果
     
     def get_locator_checked_status(self, root_layout_locator, file_name_locator, checkbox_locator, filenames):
         """

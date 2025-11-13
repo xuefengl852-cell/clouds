@@ -7,11 +7,16 @@
   "19.20": {
     "x": 1048,
     "y": 469,
-    "description": "Clear 7"
+    "description": "Clear 7排序"
   },
   "21.50": {
     "x": 1498,
     "y": 676,
-    "description": "Clear 7"
+    "description": "排序"
+  },
+  "22.00": {
+    "x": 1067,
+    "y": 295,
+    "description": "Clear 7排序"
   }
 }

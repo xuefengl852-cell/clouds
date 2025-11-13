@@ -1,4 +1,3 @@
-import base64
 import logging
 import os
 import subprocess
@@ -9,6 +8,7 @@ from typing import List, Callable
 import allure
 import pytest
 from PIL import Image
+from _pytest.fixtures import FixtureRequest
 from appium import webdriver
 from loguru import logger
 
@@ -18,20 +18,21 @@ from pages.home_clouds_page import HomeCloudsPage
 from pages.nut_cloud_page.account_information_page import AccountInformationPage
 from pages.nut_cloud_page.details_page import DetailsPage
 from pages.nut_cloud_page.document_home_page import DocumentHomePage
+from pages.nut_cloud_page.file_page import FilePage
 from pages.nut_cloud_page.home_page import HomePage
 from pages.nut_cloud_page.nut_login_page import NutLoginPage
 # 从配置模块导入
 from utils.driver import init_driver
+from utils.test_data_loader import load_test_data
 
 # 获取项目根目录
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
+folder_list = load_test_data("enter_folder_list.json")
 # 全局配置
 SCREENSHOT_DIR = os.path.join(BASE_DIR, "reports", "screenshots")
-VIDEO_DIR = os.path.join(BASE_DIR, "reports", "videos")
 ALLURE_RESULTS_DIR = os.path.join(BASE_DIR, "allure-results")
-MAX_RECORDINGS = 20  # 最大录制文件数
-
+MAX_RECORDINGS = 100  # 最大录制文件数
+GLOBAL_LOG_DIR = os.path.join(BASE_DIR, "logs", "pytest_runs")
 # 初始化日志
 logger = logging.getLogger(__name__)
 
@@ -56,15 +57,19 @@ def pytest_configure(config):
     # 生成带时间戳的日志文件名
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     log_file_name = f"pytest_run_{timestamp}.log"
-    
-    # 全局日志目录（存放所有运行日志）
-    GLOBAL_LOG_DIR = os.path.join(BASE_DIR, "logs", "pytest_runs")
-    os.makedirs(GLOBAL_LOG_DIR, exist_ok=True)
     log_file_path = os.path.join(GLOBAL_LOG_DIR, log_file_name)
-    
+    # 强制日志文件为绝对路径（避免pytest内部处理相对路径）
+    log_file_path = os.path.abspath(log_file_path)
+    config.option.log_file = log_file_path
+    # 确保所有目录存在（覆盖所有可能的目录）
+    for dir_path in [SCREENSHOT_DIR, ALLURE_RESULTS_DIR, GLOBAL_LOG_DIR]:
+        os.makedirs(dir_path, exist_ok=True)
+        # 再次验证目录是否存在（调试用）
+        if not os.path.exists(dir_path):
+            logger.warning(f"目录创建失败: {dir_path}")
     # 动态设置本次运行的日志文件路径
     # 关键：这将覆盖 pytest.ini 或命令行中指定的 log_file 设置
-    config.option.log_file = log_file_path
+    config.option.allure_report_dir = ALLURE_RESULTS_DIR
     
     # （可选）同时配置 log_cli 如果你想在控制台也看到实时日志
     # config.option.log_cli = True
@@ -72,16 +77,12 @@ def pytest_configure(config):
     
     # 确保其他目录存在
     os.makedirs(SCREENSHOT_DIR, exist_ok=True)
-    os.makedirs(VIDEO_DIR, exist_ok=True)
     os.makedirs(ALLURE_RESULTS_DIR, exist_ok=True)
-    
     # 设置 Allure 结果目录
     config.option.allure_report_dir = ALLURE_RESULTS_DIR
-    
     # 清理旧文件（可选，现在针对的是全局日志目录）
-    # cleanup_old_files(GLOBAL_LOG_DIR, ['.log'], MAX_RECORDINGS) # 你可以调整这个函数来清理旧的运行日志
+    cleanup_old_files(GLOBAL_LOG_DIR, ['.log'], MAX_RECORDINGS)
     cleanup_old_files(SCREENSHOT_DIR, ['.png'], MAX_RECORDINGS)
-    cleanup_old_files(VIDEO_DIR, ['.mp4'], MAX_RECORDINGS)
     
     logger.info(f"本次测试运行日志将保存至: {log_file_path}")
 
@@ -141,93 +142,6 @@ def cleanup_old_files(directory, extensions, max_files):
     
     except Exception as e:
         logger.error(f"清理文件时发生错误: {e}", exc_info=True)
-
-
-@pytest.fixture(scope="function", autouse=True)
-def screen_recording(request):
-    """测试用例屏幕录制功能"""
-    # 从测试用例的fixture中查找driver实例
-    driver = None
-    for fixture_name in request.fixturenames:
-        try:
-            fixture_value = request.getfixturevalue(fixture_name)
-            if isinstance(fixture_value, webdriver.Remote):
-                driver = fixture_value
-                break
-        except Exception:
-            continue
-    
-    if driver is None:
-        logger.warning("未找到driver实例，跳过屏幕录制")
-        yield
-        return
-        
-        # 检查driver是否支持屏幕录制
-    if not hasattr(driver, 'start_recording_screen'):
-        logger.warning("当前驱动不支持屏幕录制功能")
-        yield
-        return
-        
-        # 生成安全的录制文件名 - 处理Unicode字符问题
-    test_name = request.node.name
-    safe_test_name = "".join(
-        c if c.isalnum() or c in ('_', '-') else '_'
-        for c in test_name
-    )[:50]  # 限制文件名长度
-    
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    video_filename = f"VIDEO_{safe_test_name}_{timestamp}.mp4"
-    video_path = os.path.join(VIDEO_DIR, video_filename)
-    
-    # 确保目录存在（再次检查）
-    os.makedirs(os.path.dirname(video_path), exist_ok=True)
-    
-    # 开始录制
-    try:
-        # 设置录制参数
-        video_options = {
-            "timeLimit": 180,  # 5分钟限制
-            "bitRate": 5000000,  # 4 Mbps
-            # 尝试添加以下参数
-            'videoType': 'mpeg4',
-            'videoScale': '1280:720',  # 调整分辨率
-            'videoFps': 30,  # 帧率
-        }
-        
-        driver.start_recording_screen(**video_options)
-        logger.info(f"开始屏幕录制: {video_path}")
-    except Exception as e:
-        logger.error(f"启动屏幕录制失败: {e}", exc_info=True)
-        yield
-        return
-    
-    # 将视频路径附加到测试节点
-    request.node.video_path = video_path
-    
-    yield
-    
-    # 停止录制并保存视频
-    try:
-        video_data = driver.stop_recording_screen()
-        logger.info(f"停止屏幕录制: {video_path}")
-        
-        # 保存录制的视频
-        with open(video_path, "wb") as f:
-            f.write(base64.b64decode(video_data))
-        
-        logger.info(f"屏幕录制已保存: {video_path}")
-    except Exception as e:
-        logger.error(f"保存屏幕录制失败: {e}", exc_info=True)
-        
-        # 尝试保存错误信息
-        try:
-            error_log_path = os.path.join(VIDEO_DIR, f"ERROR_{safe_test_name}_{timestamp}.log")
-            with open(error_log_path, "w") as f:
-                f.write(f"录制保存失败: {str(e)}\n")
-                f.write(f"测试名称: {test_name}\n")
-                f.write(f"视频路径: {video_path}\n")
-        except Exception as log_error:
-            logger.error(f"保存错误日志失败: {log_error}")
 
 
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
@@ -571,20 +485,6 @@ def nut_cloud_login(setup, cleanup_manager):
             logger.info(f"默认清理失败: {e}")
 
 
-@pytest.fixture(scope="function")
-def enter_nut_cloud_home(request, app_driver, cleanup_manager):
-    folder_data = getattr(request, 'param', None)
-    document_home_page = DocumentHomePage(app_driver)
-    document_home_page.register_cleanup = cleanup_manager.register_cleanup
-    document_home_page.set_skip_default_cleanup = cleanup_manager.set_skip_default_cleanup
-    yield document_home_page
-    if not cleanup_manager.skip_default_cleanup:
-        try:
-            document_home_page.navigate_back(1)
-        except Exception as e:
-            logger.info(f"默认清理失败: {e}")
-
-
 @pytest.fixture(scope="session")
 def click_nut_cloud(app_driver):
     home_page = HomePage(app_driver)
@@ -593,21 +493,8 @@ def click_nut_cloud(app_driver):
 
 
 @pytest.fixture(scope="function")
-def more_pop_window_page(app_driver, cleanup_manager):
+def enter_nut_cloud_home(app_driver, click_nut_cloud, cleanup_manager):
     document_home_page = DocumentHomePage(app_driver)
-    more_pop_window = document_home_page.MorePopWindow(app_driver)
-    document_home_page.click_more_button()
-    more_pop_window.register_cleanup = cleanup_manager.register_cleanup
-    yield more_pop_window
-
-
-@pytest.fixture(scope="function")
-def enter_folder_page(request, app_driver, cleanup_manager):
-    folder_data = getattr(request, 'param', None)
-    folder1, folder2 = folder_data
-    document_home_page = DocumentHomePage(app_driver)
-    document_home_page.enter_file_page(folder1)
-    document_home_page.enter_file_page(folder2)
     document_home_page.register_cleanup = cleanup_manager.register_cleanup
     document_home_page.set_skip_default_cleanup = cleanup_manager.set_skip_default_cleanup
     yield document_home_page
@@ -616,3 +503,39 @@ def enter_folder_page(request, app_driver, cleanup_manager):
             document_home_page.navigate_back(1)
         except Exception as e:
             logger.info(f"默认清理失败: {e}")
+
+
+@pytest.fixture(scope="package")
+def enter_folder_page_parametrized(app_driver, click_nut_cloud):
+    """参数化的进入文件夹页面fixture"""
+    enter_nut_cloud_home = DocumentHomePage(app_driver)
+    enter_nut_cloud_home.enter_file_page(folder_list[0]["filenames"])
+    enter_nut_cloud_home.enter_file_page(folder_list[1]["filenames"])
+    yield enter_nut_cloud_home
+
+
+@pytest.fixture(scope="function")
+def enter_folder_page(app_driver, enter_folder_page_parametrized, cleanup_manager):
+    """参数化的进入文件夹页面fixture"""
+    file_page = FilePage(enter_folder_page_parametrized.driver)
+    file_page.register_cleanup = cleanup_manager.register_cleanup
+    file_page.set_skip_default_cleanup = cleanup_manager.set_skip_default_cleanup
+    # 进入文件夹
+    
+    yield file_page
+    if not cleanup_manager.skip_default_cleanup:
+        try:
+            file_page.navigate_back(1)
+        except Exception as e:
+            logger.info(f"默认清理失败: {e}")
+
+
+@pytest.fixture(scope="function")
+def more_pop_window_page(app_driver, page_fixture, request: FixtureRequest, cleanup_manager):
+    current_page = request.getfixturevalue(page_fixture)
+    more_pop_window = current_page.MorePopWindow(app_driver)
+    current_page.click_more_button()
+    more_pop_window.register_cleanup = cleanup_manager.register_cleanup
+    yield more_pop_window
+
+# 使用参数化的fixture版本

@@ -1,0 +1,43 @@
+locators:
+  search:
+    #搜素页面返回
+    searchBackIv: "hanvon.aebr.hanvondrive:id/searchBackIv"
+    #搜索输入框
+    janSearchEt: "hanvon.aebr.hanvondrive:id/janSearchEt"
+    #输入框回退按钮
+    clearTextIv: "hanvon.aebr.hanvondrive:id/clearTextIv"
+    #搜索按钮
+    searchbtnTv: "hanvon.aebr.hanvondrive:id/searchbtnTv"
+    #文件夹名称
+    janListNameTv: "hanvon.aebr.hanvondrive:id/janListNameTv"
+    #勾选按钮
+    SearchListChb: "hanvon.aebr.hanvondrive:id/SearchListChb"
+    #搜索按钮
+    bt_search: "hanvon.aebr.hanvondrive:id/bt_search"
+    #左翻页
+    pre_page: "hanvon.aebr.hanvondrive:id/iv_prepage"
+    #右翻页
+    next_page: "hanvon.aebr.hanvondrive:id/iv_nextpage"
+    #总页数
+    page_tv: "hanvon.aebr.hanvondrive:id/page_tv"
+    #搜索结果元素父定位器
+    rootListLayout: "hanvon.aebr.hanvondrive:id/rootListLayout"
+    #已选择-取消按钮
+    searchSelectEdTv: "hanvon.aebr.hanvondrive:id/searchSelectEdTv"
+    #搜索页文件详细信息
+    janListInfoTv: "hanvon.aebr.hanvondrive:id/janListInfoTv"
+    #搜索页长按文件名称
+    nameFileTv: "hanvon.aebr.hanvondrive:id/nameFileTv"
+    #搜索页长按文件标题
+    titleFileTv: "hanvon.aebr.hanvondrive:id/titleFileTv"
+    #搜索页长按文件信息
+    typeFileTv: "hanvon.aebr.hanvondrive:id/typeFileTv"
+    #搜索页长按文件大小
+    sizeFileTv: "hanvon.aebr.hanvondrive:id/sizeFileTv"
+    #搜索页长按文件时间
+    timeFileTv: "hanvon.aebr.hanvondrive:id/timeFileTv"
+    #搜索页长按文件图标
+    jaDocumentNameIv: "hanvon.aebr.hanvondrive:id/jaDocumentNameIv"
+    #搜索页长按文件操作栏
+    itemNameTv: "hanvon.aebr.hanvondrive:id/itemNameTv"
+    dialog_close: "hanvon.aebr.hanvondrive:id/dialog_close"

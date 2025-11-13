@@ -1,0 +1,18 @@
+[
+  {
+    "test_name": "精准搜索",
+    "search_name": "05服 务 流 程 闭 环 沟 通.pdf"
+  },
+  {
+    "test_name": "数字模糊匹配",
+    "search_name": "2022"
+  },
+  {
+    "test_name": "中文模糊匹配",
+    "search_name": "小镇做题家"
+  },
+  {
+    "test_name": "特殊符号模糊匹配",
+    "search_name": "《"
+  }
+]

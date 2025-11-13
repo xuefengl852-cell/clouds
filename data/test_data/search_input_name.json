@@ -1,0 +1,22 @@
+[
+  {
+    "test_name": "英文名称输入",
+    "search_name": "uided"
+  },
+  {
+    "test_name": "中文名称输入",
+    "search_name": "9.20读书.pdf"
+  },
+  {
+    "test_name": "特殊符号输入",
+    "search_name": "Account23!@#.+-~！@#￥%……&*（）——+？“：|"
+  },
+  {
+    "test_name": "数字输入",
+    "search_name": "13548963214562"
+  },
+  {
+    "test_name": "长名称输入",
+    "search_name": "VeryLongAccountNameWithMoreThanFiftyCharactersForTestingVeryLongAccountNameWithMoreThanFiftyCharactersForTestingHelloHelloHelloSearchCloudVeryLongAccountNameWithMoreThanFiftyCharactersForTestingVeryLongAccountNameWithMoreThanFiftyCharactersForTestingHelloHelloHelloSearchCloud"
+  }
+]

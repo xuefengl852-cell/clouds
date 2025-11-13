@@ -171,6 +171,14 @@ class DocumentHomePage(BasePage):
             return False
         return self
     
+    def click_tv_drive(self):
+        try:
+            self.click(
+                self.select_ed
+            )
+        except Exception as e:
+            logger.error(f"点击返回按钮失败：{e}")
+    
     def get_return_text(self):
         try:
             return_text = self.get_element_attribute(
@@ -185,6 +193,7 @@ class DocumentHomePage(BasePage):
     def click_search_button(self):
         try:
             self.click(self.search)
+            logger.info(f"点击搜索按钮成功")
         except Exception as e:
             logger.error(f"异常信息：{e}")
         return self
@@ -202,8 +211,7 @@ class DocumentHomePage(BasePage):
             page_indicator_locator=self.page_tv,  # 页码指示器元素
             section=locators.PAGE_SECTION,
             key=locators.FILE_GRID_TV,
-            next_button_locator=self.next_page,
-            prev_button_locator=self.pre_page
+            next_button_locator=self.next_page
         )
     
     def select_all_current_page(self):
@@ -250,8 +258,7 @@ class DocumentHomePage(BasePage):
             page_indicator_locator=self.page_tv,  # 页码指示器元素
             section=locators.PAGE_SECTION,
             key=locators.JAN_LIST_NAME_TV,
-            next_button_locator=self.next_page,
-            prev_button_locator=self.pre_page
+            next_button_locator=self.next_page
         )
     
     def click_transmission_button(self):
@@ -309,14 +316,58 @@ class DocumentHomePage(BasePage):
             logger.error(f"获取选择数量失败：{e}")
         return number
     
-    def get_page_number(self):
-        page_text = self.get_page_number_text()
-        current_page, all_pages = map(int, page_text.split('/'))
-        return current_page, all_pages
+    def page_swipe_left_down(self, left=False, down=False):
+        """页面左滑、下滑"""
+        try:
+            current_page, all_pages = self.get_page_number_text()
+            if current_page < all_pages and left:
+                self.swipe_left()
+                logger.info(f"向左滑动成功")
+            elif current_page < all_pages and down:
+                self.swipe_down()
+                logger.info(f"向下滑动翻页成功")
+            else:
+                logger.warning(f"下翻页滑动失败，当前页：{current_page}，总页数：{all_pages}")
+        except Exception as e:
+            logger.error(f"页面左滑失败：{e}")
+    
+    def page_swipe_right_up(self, up=False, right=False):
+        """页面右滑、上滑"""
+        try:
+            current_page, all_pages = self.get_page_number_text()
+            if 1 < current_page <= all_pages and right:
+                self.swipe_right()
+                logger.info(f"向右滑动成功")
+            elif current_page < all_pages and up:
+                self.swipe_up()
+                logger.info(f"向上滑动翻页成功")
+            else:
+                logger.warning(f"上翻页滑动失败，当前页：{current_page}，总页数：{all_pages}")
+        except Exception as e:
+            logger.error(f"页面左滑失败：{e}")
+    
+    def verify_swipe_left_down_success(self):
+        """验证左滑以及下滑翻页"""
+        try:
+            current_page, all_pages = self.get_page_number_text()
+            logger.info(f"当前页面页码：{current_page}，总页面：{all_pages}")
+            return current_page + 1
+        except Exception as e:
+            logger.error(f"获取当前页页码失败：{e}")
+            raise e
+    
+    def verify_swipe_right_up_success(self):
+        """验证右滑以及上滑翻页"""
+        try:
+            current_page, all_pages = self.get_page_number_text()
+            return current_page - 1
+        except Exception as e:
+            logger.error(f"获取当前页页码失败：{e}")
+            raise e
     
     def click_next_page(self):
         """点击下一页"""
-        current_page, all_pages = self.get_page_number()
+        current_page, all_pages = self.get_page_number_text()
         if current_page < all_pages:
             try:
                 self.click(self.next_page)
@@ -329,7 +380,7 @@ class DocumentHomePage(BasePage):
     
     def click_pre_page(self):
         """点击上一页"""
-        current_page, all_pages = self.get_page_number()
+        current_page, all_pages = self.get_page_number_text()
         if current_page > 1:
             try:
                 self.click(self.pre_page)
@@ -346,32 +397,46 @@ class DocumentHomePage(BasePage):
         :param filenames: 文件名称列表
         :return: T/F
         """
-        current_page, all_pages = self.get_page_number()
+        current_page, all_pages = self.get_page_number_text()
         
         # 遍历所有页面
-        while current_page < all_pages:
-            click_status = self.click_based_on_the_file_name(
-                self.root_layout,
-                self.file_grid_tv_id,
-                self.jan_grid_chb,
-                filenames
-            )
-            if click_status:
-                logger.info(f"在：{current_page}页，选择：{filenames}复选框成功")
-                break
-            else:
-                logger.warning(f"在：{current_page}页，选择：{filenames}复选框失败，进行翻页")
-                self.click_next_page()
+        click_status = self.click_based_on_the_file_name(
+            self.root_layout,
+            self.file_grid_tv_id,
+            self.jan_grid_chb,
+            filenames,
+            current_page,
+            all_pages,
+            self.next_page
+        )
         return click_status
+    
+    def get_page_number_text(self):
+        """获取页码当前页、总页数"""
+        try:
+            page_text = self.get_element_attribute(
+                self.page_tv,
+                "text"
+            )
+            
+            current_page, all_pages = map(int, page_text.split('/'))
+            return current_page, all_pages
+        except Exception as e:
+            logger.error(f"获取页码失败{e}")
+            raise
     
     def long_press_the_folder_by_name(self, filename):
         """根据名称长按文件夹"""
         try:
+            current_page, all_pages = self.get_page_number_text()
             self.long_press_based_on_the_file_name(
                 self.root_layout,
                 self.file_grid_tv_id,
                 self.jan_grid_tv,
-                filename
+                filename,
+                current_page,
+                all_pages,
+                self.next_page
             )
         except Exception as e:
             logger.error(f"长安文件夹失败：{e}")
@@ -474,14 +539,19 @@ class DocumentHomePage(BasePage):
             return False
     
     def enter_file_page(self, filenames):
+        success = False
         try:
-            success = False
+            current_page, all_pages = self.get_page_number_text()
             if not success:
                 self.click_based_on_the_file_name(
                     self.root_layout,
                     self.file_grid_tv_id,
                     self.jan_grid_tv,
-                    filenames
+                    filenames,
+                    current_page,
+                    all_pages,
+                    self.next_page
+                
                 )
                 success = True
             else:
@@ -506,20 +576,17 @@ class DocumentHomePage(BasePage):
         :param filenames: 文件名称列表
         :return: 点击文件个数
         """
-        current_page, all_pages = self.get_page_number()
-        while current_page < all_pages:
-            click_status = self.click_based_on_the_file_name(
-                self.root_layout,
-                self.file_grid_tv_id,
-                self.jan_grid_tv,
-                filenames
-            )
-            if click_status:
-                logger.info(f"在第{current_page}页，点击进入：{filenames}文件夹成功")
-                break
-            else:
-                logger.warning(f"在第{current_page}页，未找到{filenames}文件夹，进行下一页查找")
-                self.click_next_page()
+        current_page, all_pages = self.get_page_number_text()
+        click_status = self.click_based_on_the_file_name(
+            self.root_layout,
+            self.file_grid_tv_id,
+            self.jan_grid_tv,
+            filenames,
+            current_page,
+            all_pages,
+            self.next_page
+        )
+        
         return click_status
     
     def verify_enter_nut_folder(self):
@@ -565,12 +632,13 @@ class DocumentHomePage(BasePage):
     
     def get_page_number_text(self):
         try:
-            page_number_text = self.get_element_attribute(
+            page_text = self.get_element_attribute(
                 self.page_tv,
                 "text"
             )
-            logger.info(f"当前页面页码为：{page_number_text}")
-            return page_number_text
+            
+            current_page, all_pages = map(int, page_text.split('/'))
+            return current_page, all_pages
         except Exception as e:
             logger.error(f"获取页码失败{e}")
             raise
