@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 login_data_positive = load_test_data("login_data_positive.json")
 test_username = 'liuxuefeng@hanwang.com.cn'
 test_password = 'ani2k9vrmac7epjp'
+bind_prompt_text = "绑定网盘，即可下载文档"
 
 
 @pytest.mark.run(order=2)
@@ -52,7 +53,7 @@ class TestLoginScenarios:
         nut_cloud_login.set_skip_default_cleanup()
         with allure.step("点击返回"):
             result = nut_cloud_login.click_return_button()
-            assert result.get_cloud_name_text() == '聚合网盘', f"返回网盘主页失败"
+            assert result.get_cloud_name_text() == bind_prompt_text, f"返回网盘主页失败"
     
     @allure.story("用户点击显示密码按钮")
     @allure.title("验证用户点击显示密码按钮后文本是否正常显示为明码")
@@ -69,7 +70,7 @@ class TestLoginScenarios:
         nut_cloud_login.set_skip_default_cleanup()
         with allure.step("取消登录"):
             result = nut_cloud_login.click_cancel_button()
-            assert result.get_cloud_name_text() == '聚合网盘', f"返回网盘主页失败"
+            assert result.get_cloud_name_text() == bind_prompt_text, f"返回网盘主页失败"
     
     @allure.story("用户点击确定")
     @allure.title("验证点击确定是否弹出对应提示")
@@ -86,7 +87,7 @@ class TestLoginScenarios:
             result = nut_cloud_login.input_username(test_username)
             assert result.get_input_username_value() == test_username, f"断言失败，输入用户名与获取用户名值不相同"
             result.click_return_button()
-            assert result.get_cloud_name_text() == '聚合网盘', f"返回网盘主页失败"
+            assert result.get_cloud_name_text() == bind_prompt_text, f"返回网盘主页失败"
     
     @allure.story("用户输入密码点击返回")
     @allure.title("验证输入密码后点击返回是否回到主页")
@@ -97,7 +98,7 @@ class TestLoginScenarios:
             assert len(result.get_input_password_text()) == len(test_password), f"断言密码长度相同失败"
             assert all(char in ['●', '*', '•'] for char in result.get_input_password_text()), "掩码字符不符合预期"
             result.click_return_button()
-            assert result.get_cloud_name_text() == '聚合网盘', f"返回网盘主页失败"
+            assert result.get_cloud_name_text() == bind_prompt_text, f"返回网盘主页失败"
     
     @allure.story("用户输入账号，密码")
     @allure.title("验证用户输入账号后输入密码")
@@ -122,7 +123,7 @@ class TestLoginScenarios:
             assert len(result.get_input_password_text()) == len(test_password), f"断言密码长度相同失败"
             assert all(char in ['●', '*', '•'] for char in result.get_input_password_text()), "掩码字符不符合预期"
             result.click_return_button()
-            assert result.get_cloud_name_text() == '聚合网盘', f"返回网盘主页失败"
+            assert result.get_cloud_name_text() == bind_prompt_text, f"返回网盘主页失败"
     
     @allure.story("用户输入密码显示明码再将密码恢复为掩码")
     @allure.title("验证密码明码变为掩码")

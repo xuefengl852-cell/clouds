@@ -71,15 +71,9 @@ class TestAccountInformationScenarios:
     @allure.title("验证用户是否可以正常输入后确定")
     @pytest.mark.parametrize("rename_data", test_positive_data,
                              ids=[item['description'] for item in test_positive_data])
-    def test_input_account_name(self, logged_in_account_edit_page, rename_data):
+    def test_input_account_name_sure(self, logged_in_account_edit_page, rename_data):
         logged_in_account_edit_page.set_skip_default_cleanup()
         
-        def update_account_name():
-            logged_in_account_edit_page.input_account(
-                username
-            ).click_sure_button()
-        
-        logged_in_account_edit_page.register_cleanup(update_account_name)
         try:
             with allure.step("输入名称"):
                 result = logged_in_account_edit_page.input_account(

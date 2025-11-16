@@ -15,3 +15,4 @@ class NutLoginLocators:
     ITEM_NAME = "item_name"
     BIND_CLOUD = "bind_cloud"
     NUT_CLOUD = "nut_cloud"
+    BIND_TEXT = "bind_text"

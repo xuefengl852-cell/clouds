@@ -22,3 +22,4 @@ locators:
     bind_cloud: "hanvon.aebr.hanvondrive:id/tv_drive_type"
     #坚果云网盘
     nut_cloud: "hanvon.aebr.hanvondrive:id/rb_nut"
+    bind_text: "hanvon.aebr.hanvondrive:id/text"

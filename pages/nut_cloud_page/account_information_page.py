@@ -203,11 +203,11 @@ class AccountInformationPage(BasePage):
         
         def input_account(self, text):
             try:
-                self.input_text(
+                input_text = self.input_text(
                     self.account_input,
                     text
                 )
-            
+                logger.info(f"输入文本：{input_text}失败")
             except Exception as e:
                 logger.error(f"{e}")
                 raise

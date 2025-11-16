@@ -302,7 +302,7 @@ class BasePage:
             logger.error(f"元素不可编辑: {locator}")
             raise
         except Exception as e:
-            logger.error(f"输入文本失败: {locator} | {str(e)}")
+            logger.error(f"输入文本{text}失败: {locator} | {str(e)}")
             raise
     
     def find_by_locator_index(self, locator, index=0, timeout=None):
@@ -582,7 +582,7 @@ class BasePage:
             logger.error(f"等待元素异常: {locator} | 错误: {str(e)}")
             raise
     
-    def get_element_attribute(self, locator, attribute, multiple=False, condition='present', timeout=None, index=0):
+    def get_element_attribute(self, locator, attribute, multiple=False, condition='present'):
         """
         通用获取元素属性值方法 - 支持单元素和多元素
 

@@ -49,6 +49,10 @@ class NutLoginPage(BasePage):
         return self.get_locator(locators.PAGE_SECTION, locators.CANCEL_BUTTON)
     
     @property
+    def bind_text(self):
+        return self.get_locator(locators.PAGE_SECTION, locators.BIND_TEXT)
+    
+    @property
     def return_button(self):
         return self.get_locator(locators.PAGE_SECTION, locators.RETURN_BUTTON)
     
@@ -141,9 +145,10 @@ class NutLoginPage(BasePage):
     def get_cloud_name_text(self):
         try:
             cloud_name_value = self.get_element_attribute(
-                self.return_button,
+                self.bind_text,
                 "text"
             )
+            logger.info(f"获取返回登录页面按钮文本：{cloud_name_value}")
             return cloud_name_value
         except Exception as e:
             logger.error(f"异常信息：{e}")
