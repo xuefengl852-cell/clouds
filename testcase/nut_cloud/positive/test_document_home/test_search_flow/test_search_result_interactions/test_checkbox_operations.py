@@ -8,6 +8,7 @@ from utils.test_data_loader import load_test_data
 logger = logging.getLogger(__name__)
 check_data = load_test_data("search_results_check_data.json")
 search_mode_data = load_test_data("search_mode_data.json")
+cancel_check_data = load_test_data("search_cancel_check_data.json")
 
 
 @allure.story("搜索结果勾选")
@@ -33,7 +34,7 @@ search_mode_data = load_test_data("search_mode_data.json")
 @pytest.mark.run(order=12)
 @allure.story("搜索结果交互")
 class TestCheckboxOperations:
-    
+    @allure.title("根据搜索结果勾选文件")
     def test_search_results_check_box(self, click_search_but, check_test_data, input_name):
         result = click_search_but
         
@@ -41,7 +42,7 @@ class TestCheckboxOperations:
             result.click_cancel_but()
         
         result.register_cleanup(cancel_click)
-        with allure.step("根据文件夹名称进行勾选文件"):
+        with allure.step("根据搜索结果文件名称进行勾选文件"):
             result.click_search_file_name(check_test_data)
         
         with allure.step("验证文件是否已被勾选"):
@@ -51,7 +52,8 @@ class TestCheckboxOperations:
             assert len(
                 check_test_data) == select_number, f"文件点击选择个数失败。获取数量：{select_number},实际数量：{len(check_test_data)}"
     
-    def test_cancel_checkbox(self, click_file_checkbox, check_test_data, input_name):
+    @allure.title("勾选后点击取消按钮")
+    def test_click_cancel_checkbox_but(self, click_file_checkbox, check_test_data, input_name):
         def click_delete_bun():
             click_file_checkbox.click_clear_button()
         
@@ -61,3 +63,18 @@ class TestCheckboxOperations:
             click_file_checkbox.click_cancel_but()
         with allure.step(f"验证去点击取消成功"):
             assert click_file_checkbox.verify_cancel_but_not_success, f"取消按钮点击失败"
+    
+    @allure.title("取消勾选文件")
+    def test_cancel_checkbox(self, cancel_checkbox, check_test_data, input_name):
+        result = cancel_checkbox
+        
+        def enter_search_page():
+            result.navigate_back(1)
+            result.click_search_document_but()
+        
+        result.register_cleanup(enter_search_page)
+        
+        with allure.step("点击取消勾选按钮"):
+            result.click_search_file_name(check_test_data)
+        with allure.step("验证取消勾选成功"):
+            assert result.verify_locator_click_status(check_test_data, 'false'), f"文件:{check_test_data}勾选失败"

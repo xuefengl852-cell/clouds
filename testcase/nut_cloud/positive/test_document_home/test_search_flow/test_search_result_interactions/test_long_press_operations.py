@@ -39,7 +39,8 @@ class TestLongPressOperations:
         result = click_search_but
         
         def click_close_but():
-            result.click_dialog_close()
+            result.navigate_back(2)
+            result.click_search_document_but()
         
         result.register_cleanup(click_close_but)
         
@@ -89,6 +90,12 @@ class TestLongPressOperations:
     @allure.title("关闭长按弹出窗口")
     def test_click_close_but(self, long_file_name, long_file_data, check_test_data, input_name):
         result = long_file_name
+        
+        def click_close_but():
+            result.navigate_back(1)
+            result.click_search_document_but()
+        
+        result.register_cleanup(click_close_but)
         with allure.step("点击关闭按钮"):
             result.click_dialog_close()
         with allure.step("验证关闭弹窗成功"):

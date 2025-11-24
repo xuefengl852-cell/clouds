@@ -1396,7 +1396,8 @@ class BasePage:
             logger.error(f"获取文件属性时发生未知错误：{e}")
             return attribute_results  # 即使出错，也返回已成功获取的结果
     
-    def get_locator_checked_status(self, root_layout_locator, file_name_locator, checkbox_locator, filenames):
+    def get_locator_checked_status(self, root_layout_locator, file_name_locator, checkbox_locator, attribute,
+                                   filenames):
         """
         根据多个文件名获取对应的复选框状态
         :return: 字典格式 {文件名: 选中状态}
@@ -1416,7 +1417,7 @@ class BasePage:
                         if current_filename == target_filename:
                             checkbox_element = item.find_element(*checkbox_locator)
                             # 获取选中状态
-                            status = checkbox_element.get_attribute("checked")
+                            status = checkbox_element.get_attribute(attribute)
                             status_dict[target_filename] = status
                             found = True
                             logger.info(f"文件 {target_filename} 状态: {status}")
@@ -1435,3 +1436,43 @@ class BasePage:
             logger.error(f"获取文件状态时发生异常: {e}")
             # 返回默认状态字典
             return {filename: "获取失败" for filename in filenames}
+    
+    def get_child_elements_text_by_parent(self, parent_locator, child_locator):
+        """
+        根据父元素定位器，获取所有子元素的text属性，返回文本列表
+        :param parent_locator: 父元素定位器
+        :param child_locator: 子元素定位器
+        :return: 子元素文本列表（如 ['文本1', '文本2']），无数据时返回空列表
+        """
+        try:
+            # 1. 等待父元素出现（可见或存在，根据实际场景选择）
+            logger.info(f"等待父元素出现：{parent_locator}")
+            parent_element = self.wait_for_element(parent_locator)
+            
+            # 2. 在父元素范围内查找所有子元素
+            logger.info(f"在父元素 {parent_locator} 下查找子元素：{child_locator}")
+            child_elements = parent_element.find_elements(*child_locator)  # * 解包定位器元组
+            
+            if not child_elements:
+                logger.warning(f"父元素 {parent_locator} 下未找到任何子元素 {child_locator}")
+                return []
+            
+            # 3. 遍历子元素，获取text属性
+            child_texts = []
+            for index, element in enumerate(child_elements, 1):
+                text = element.text  # 去除首尾空格
+                child_texts.append(text)
+                self.logger.debug(f"第 {index} 个子元素文本：{text}")
+            
+            logger.info(f"成功获取 {len(child_texts)} 个子元素文本")
+            return child_texts
+        
+        except TimeoutException:
+            logger.error(f"父元素 {parent_locator} 定位超时（{self.timeout}s）")
+            return []
+        except NoSuchElementException:
+            logger.error(f"父元素 {parent_locator} 存在，但未找到子元素 {child_locator}")
+            return []
+        except Exception as e:
+            logger.error(f"获取子元素文本失败：{str(e)}", exc_info=True)
+            return []

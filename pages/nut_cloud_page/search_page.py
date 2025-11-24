@@ -29,12 +29,28 @@ class SearchPage(BasePage):
         return self.get_locator(locators.PAGE_SECTION, locators.JAN_SEARCH_ET)
     
     @property
+    def jan_dd_status_tv(self):
+        return self.get_locator(locators.PAGE_SECTION, locators.JAN_DD_STATUS_TV)
+    
+    @property
+    def pre_page(self):
+        return self.get_locator(locators.PAGE_SECTION, locators.PRE_PAGE)
+    
+    @property
+    def dialog_cancel(self):
+        return self.get_locator(locators.PAGE_SECTION, locators.DIALOG_CANCEL)
+    
+    @property
     def clear_text_iv(self):
         return self.get_locator(locators.PAGE_SECTION, locators.CLEAR_TEXT_IV)
     
     @property
     def bt_search(self):
         return self.get_locator(locators.PAGE_SECTION, locators.BT_SEARCH)
+    
+    @property
+    def copy_dialog_title(self):
+        return self.get_locator(locators.PAGE_SECTION, locators.COPY_DIALOG_TITLE)
     
     @property
     def search_btn_tv(self):
@@ -99,6 +115,50 @@ class SearchPage(BasePage):
     @property
     def dialog_close(self):
         return self.get_locator(locators.PAGE_SECTION, locators.DIALOG_CLOSE)
+    
+    @property
+    def search_Select_all(self):
+        return self.get_locator(locators.PAGE_SECTION, locators.SEARCH_SELECT_ALL)
+    
+    @property
+    def search_copy_tv(self):
+        return self.get_locator(locators.PAGE_SECTION, locators.SEARCH_COPY_TV)
+    
+    @property
+    def search_move_tv(self):
+        return self.get_locator(locators.PAGE_SECTION, locators.SEARCH_MOVE_TV)
+    
+    @property
+    def search_sec_tv(self):
+        return self.get_locator(locators.PAGE_SECTION, locators.SEARCH_SEC_TV)
+    
+    @property
+    def search_delete_tv(self):
+        return self.get_locator(locators.PAGE_SECTION, locators.SEARCH_DELETE_TV)
+    
+    @property
+    def bt_download(self):
+        return self.get_locator(locators.PAGE_SECTION, locators.BT_DOWNLOAD)
+    
+    @property
+    def dateLayout(self):
+        return self.get_locator(locators.PAGE_SECTION, locators.DATE_LAYOUT)
+    
+    @property
+    def janDdInfoTv(self):
+        return self.get_locator(locators.PAGE_SECTION, locators.JAN_DD_INFO_TV)
+    
+    @property
+    def janDdTitleNameTv(self):
+        return self.get_locator(locators.PAGE_SECTION, locators.JAN_DD_TITLE_NAME_TV)
+    
+    @property
+    def janDdNameIv(self):
+        return self.get_locator(locators.PAGE_SECTION, locators.JAN_DD_NAME_IV)
+    
+    @property
+    def download_progress_xpath(self):
+        return self.get_locator(locators.PAGE_SECTION, locators.DOWNLOAD_PROF_RESS_XPATH)
     
     def click_search_return(self):
         """在搜索页点击返回按钮"""
@@ -173,6 +233,18 @@ class SearchPage(BasePage):
         except Exception as e:
             logger.error(f"点击搜索按钮失败：{e}")
     
+    def verify_search_btn_exist(self):
+        """验证搜索按钮存在"""
+        try:
+            search_btn = self.wait_for_element(
+                self.search_btn_tv
+            )
+            logger.info(f"搜索页面搜索按钮存在")
+            return search_btn is not None
+        except Exception as e:
+            logger.error(f"搜索页面搜索按钮不存在")
+            raise e
+    
     def get_all_search_document_names(self):
         """获取搜索所有文档名称"""
         return self.get_paginated_data(
@@ -219,19 +291,44 @@ class SearchPage(BasePage):
             raise e
     
     def get_locator_select_number(self):
-        """验证选择文件个数是否正确"""
+        """获取页面上实际勾选的文件数量（处理元素不存在的情况）"""
         try:
-            select_number = self.get_element_attribute(
+            # 尝试获取元素文本（超时时间可缩短，因为元素要么存在要么不存在）
+            text = self.get_element_attribute(
                 self.search_select_ed_tv,
-                "text"
+                'text',
+                condition='visible'  # 只等待“可见”的元素（避免定位到隐藏元素）
             )
-            match = re.search(r'\d+', select_number)
+            match = re.search(r'\d+', text)
+            if text is None or text.strip() == '':
+                # 文本为空时，返回 0
+                logger.info(f"勾选数量显示元素文本为空，返回 0")
+                return 0
             if match:
                 number = match.group()
                 logger.info(f"已选择文件个数为：{int(number)}")
                 return int(number)
+        
+        except RuntimeError as e:
+            # 捕获“元素未找到”的异常（get_element_attribute 会抛 RuntimeError）
+            if "获取属性失败" in str(e) and "NoneType" in str(e):
+                # 元素不存在，说明勾选数量为 0
+                logger.info(f"勾选数量显示元素不存在，返回 0")
+                return 0
+            else:
+                # 其他错误（如文本无法转 int），重新抛出
+                logger.error(f"获取勾选数量失败：{str(e)}")
+                raise
+    
+    def verify_cancel_checkbox_number(self, click_file_name, cancel_click_file_name):
+        """验证取消勾选"""
+        try:
+            select_number = len(click_file_name) - len(cancel_click_file_name)
+            if select_number >= 0:
+                logger.info(f"取消后的数量为：{select_number}")
+                return select_number
         except Exception as e:
-            logger.info(f"获取已选择文件个数失败：{e}")
+            logger.error(f"获取取消勾选数量失败")
             raise e
     
     def verify_locator_click_status(self, filenames, status_text):
@@ -241,6 +338,7 @@ class SearchPage(BasePage):
                 self.root_list_layout,
                 self.jan_list_name_tv,
                 self.search_list_chb,
+                "checked",
                 filenames
             )
             logger.info(f"返回的数据内容: {status_dict}")
@@ -470,3 +568,137 @@ class SearchPage(BasePage):
         except Exception as e:
             logger.error(f"定位文件名称异常：{e}")
             return False
+    
+    def click_select_all_but(self):
+        """点击搜索页全选按钮"""
+        try:
+            self.click(self.search_Select_all)
+            logger.info(f"搜索页点击全选按钮成功")
+        except Exception as e:
+            logger.error(f"搜索页点击全选按钮失败：{e}")
+            raise e
+    
+    def click_next_page_but(self):
+        """搜索页面点击下一页按钮"""
+        try:
+            self.click(self.next_page)
+            logger.info(f"搜索页面点击下一页成功")
+        except Exception as e:
+            logger.error(f"搜索页面点击下一页失败")
+            raise e
+    
+    def click_pre_page_but(self):
+        """搜索页面点击上一页按钮"""
+        try:
+            self.click(self.pre_page)
+            logger.info(f"搜索页面点击上一页成功")
+        except Exception as e:
+            logger.error(f"搜索页面点击上一页失败")
+            raise e
+    
+    def get_select_all_element_text(self):
+        """获取当前页面所有文档名称"""
+        try:
+            file_name_text = self.get_all_folder_texts(
+                locators.PAGE_SECTION, locators.JAN_LIST_NAME_TV
+            )
+            logger.info(f"获取到的文本为")
+            return file_name_text
+        except Exception as e:
+            logger.error(f"获取当前页文本失败")
+            raise e
+    
+    def get_select_all_text(self):
+        """获取全选按钮文本"""
+        try:
+            select_text = self.get_element_attribute(
+                self.search_Select_all,
+                "text"
+            )
+            logger.info(f"全选/取消全选按钮文本为：{select_text}")
+            return select_text
+        except Exception as e:
+            logger.error(f'获取全选/取消全选文本失败')
+            raise e
+    
+    def click_copy_btn(self):
+        """在搜索页点击复制按钮"""
+        try:
+            self.click(self.search_copy_tv)
+            logger.info(f"点击复制按钮成功")
+        except Exception as e:
+            logger.error(f"点击复制按钮失败")
+            raise e
+    
+    def click_remove_btn(self):
+        """搜索页点击移动按钮"""
+        try:
+            self.click(self.search_move_tv)
+            logger.info(f"搜索页点击移动按钮成功")
+        except Exception as e:
+            logger.info(f"搜索页点击移动按钮失败")
+            raise e
+    
+    def get_dialog_title_text(self):
+        """获取弹窗提示文本"""
+        try:
+            dialog_text = self.get_element_attribute(
+                self.copy_dialog_title,
+                "text"
+            )
+            logger.info(f"获取弹窗文本：{dialog_text}，成功")
+            return dialog_text
+        except Exception as e:
+            logger.info(f"获取弹窗文本失败")
+            raise e
+    
+    def click_dialog_cancel_btn(self):
+        """点击搜索页面弹窗取消按钮"""
+        try:
+            self.click(self.dialog_cancel)
+            logger.info(f"点击取消按扭成功")
+        except Exception as e:
+            logger.info(f"点击取消按钮失败")
+            raise e
+    
+    def click_download_btn(self):
+        """点击搜索页下载按钮"""
+        try:
+            self.click(self.search_sec_tv)
+            logger.info("点击下载按钮成功")
+        except Exception as e:
+            logger.error(f"点击下载按钮失败")
+            raise e
+    
+    def click_transmission_list_btn(self):
+        """点击输出列表按钮"""
+        try:
+            self.click(self.bt_download)
+            logger.info(f"进入传输列表成功")
+        except Exception as e:
+            logger.error(f"进入传输列表失败")
+            raise e
+    
+    def verify_download_toast(self):
+        """获取当前toast文本内容"""
+        try:
+            download_toast = self.get_toast_text()
+            logger.info(f"当前toast文本为：{download_toast}")
+            return download_toast
+        except Exception as e:
+            logger.error(f"获取当前弹窗文本失败")
+            raise e
+    
+    def check_download_progress(self, filenames):
+        downloading = self.wait_for_element(
+            locator=self.dateLayout
+        )
+        download_success = self.wait_for_element(self.jan_dd_status_tv)
+        download_dict = self.get_locator_checked_status(
+            self.root_list_layout,
+            self.janDdTitleNameTv,
+            self.jan_dd_status_tv,
+            "text",
+            filenames
+        )
+        logger.info(f"************************************{download_dict}")

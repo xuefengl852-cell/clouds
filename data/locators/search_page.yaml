@@ -41,3 +41,29 @@ locators:
     #搜索页长按文件操作栏
     itemNameTv: "hanvon.aebr.hanvondrive:id/itemNameTv"
     dialog_close: "hanvon.aebr.hanvondrive:id/dialog_close"
+    #搜索页全选按钮
+    searchSelectAll: "hanvon.aebr.hanvondrive:id/searchSelectAll"
+    #搜索页复制按钮
+    searchCopyTv: "hanvon.aebr.hanvondrive:id/searchCopyTv"
+    #搜索页移动按钮
+    searchMoveTv: "hanvon.aebr.hanvondrive:id/searchMoveTv"
+    #搜索页下载按钮
+    searchSecTv: "hanvon.aebr.hanvondrive:id/searchSecTv"
+    #搜索页删除按钮
+    searchDeleteTv: "hanvon.aebr.hanvondrive:id/searchDeleteTv"
+    #复制弹窗title
+    copy_dialog_title: "hanvon.aebr.hanvondrive:id/dialog_title"
+    #复制弹窗取消按钮
+    dialog_cancel: "hanvon.aebr.hanvondrive:id/dialog_cancel"
+    #下载按钮
+    bt_download: "hanvon.aebr.hanvondrive:id/bt_download"
+    #下载列表下载状态文本
+    dateLayout: "hanvon.aebr.hanvondrive:id/dateLayout"
+    #下载列表文件大小文本
+    janDdInfoTv: "hanvon.aebr.hanvondrive:id/janDdInfoTv"
+    #下载列表文件名称
+    janDdTitleNameTv: "hanvon.aebr.hanvondrive:id/janDdTitleNameTv"
+    #下载列表文件图标
+    janDdNameIv: "hanvon.aebr.hanvondrive:id/janDdNameIv"
+    download_progress_xpath: "xpath://*[@resource-id='hanvon.aebr.hanvondrive:id/janDdTitleNameTv' and contains(@text, '{file}')]/../*[@resource-id='hanvon.aebr.hanvondrive:id/dateLayout']"
+    janDdStatusTv: "hanvon.aebr.hanvondrive:id/janDdStatusTv"

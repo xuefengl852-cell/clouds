@@ -54,3 +54,12 @@ def click_file_checkbox(click_search_but, input_name, check_test_data, cleanup_m
     input_search_name.register_cleanup = cleanup_manager.register_cleanup
     input_search_name.set_skip_default_cleanup = cleanup_manager.set_skip_default_cleanup
     yield click_search_but
+
+
+@pytest.fixture(scope="function")
+def click_next_page_button(enter_search_page, cleanup_manager):
+    """点击下一页翻页按钮"""
+    enter_search_page.click_next_page_but()
+    input_search_name.register_cleanup = cleanup_manager.register_cleanup
+    input_search_name.set_skip_default_cleanup = cleanup_manager.set_skip_default_cleanup
+    yield enter_search_page

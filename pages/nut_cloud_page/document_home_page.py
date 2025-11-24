@@ -613,6 +613,7 @@ class DocumentHomePage(BasePage):
                 self.root_layout,
                 self.file_grid_tv_id,
                 self.jan_grid_chb,
+                "checked",
                 filenames
             )
             # 调试：打印返回的数据类型和内容
