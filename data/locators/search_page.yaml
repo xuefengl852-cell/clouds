@@ -67,3 +67,19 @@ locators:
     janDdNameIv: "hanvon.aebr.hanvondrive:id/janDdNameIv"
     download_progress_xpath: "xpath://*[@resource-id='hanvon.aebr.hanvondrive:id/janDdTitleNameTv' and contains(@text, '{file}')]/../*[@resource-id='hanvon.aebr.hanvondrive:id/dateLayout']"
     janDdStatusTv: "hanvon.aebr.hanvondrive:id/janDdStatusTv"
+    #下载列表勾选文件
+    janDdChb: "hanvon.aebr.hanvondrive:id/janDdChb"
+    #下载列表全选按钮
+    janSelectLayout: "hanvon.aebr.hanvondrive:id/janSelectLayout"
+    #下载列表删除按钮
+    janDeleteTv: "hanvon.aebr.hanvondrive:id/janDeleteTv"
+    #删除本地文件勾选框
+    noticeChb: "hanvon.aebr.hanvondrive:id/noticeChb"
+    #确认删除按钮
+    deleteNoticeSure: "hanvon.aebr.hanvondrive:id/deleteNoticeSure"
+    #下载列表前翻页
+    page_left: "hanvon.aebr.hanvondrive:id/page_left"
+    #下载列表后翻页
+    page_right: "hanvon.aebr.hanvondrive:id/page_right"
+    #下载列表点击返回
+    dd_drive: "hanvon.aebr.hanvondrive:id/dd_drive"

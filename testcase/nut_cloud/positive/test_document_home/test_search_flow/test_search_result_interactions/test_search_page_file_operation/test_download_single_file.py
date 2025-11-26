@@ -3,11 +3,11 @@ import pytest
 
 from utils.test_data_loader import load_test_data
 
-search_check_home_page_data = load_test_data("download_large_memory_files_data.json")
+search_check_home_page_data = load_test_data("test_download_single_file_data.json")
 
 
-@pytest.mark.run(order=23)
-@allure.story("多个文件下载")
+@pytest.mark.run(order=22)
+@allure.story("单个文件下载")
 class TestDownLoadMultipleFile:
     @pytest.mark.parametrize(
         # 声明需要传递的参数：input_name（给input_name fixture）和check_test_data（给check_test_data fixture）
@@ -27,7 +27,7 @@ class TestDownLoadMultipleFile:
         # 指定参数传递给对应的fixture
         indirect=["check_test_data"]
     )
-    @allure.title("钩选多个文件点击下载")
+    @allure.title("钩选单个文件点击下载")
     def test_multiple_file_download(self, search_check_box_file, check_test_data):
         result = search_check_box_file
         
@@ -50,4 +50,4 @@ class TestDownLoadMultipleFile:
         with allure.step("验证下载数量是否正确"):
             assert len(download_number) == len(check_test_data), f"下载数量错误"
         with allure.step("验证下载列表下载正确"):
-            result.check_download_progress(check_test_data), f"文件下载失败"
+            assert result.check_download_progress(check_test_data), f"文件下载失败"

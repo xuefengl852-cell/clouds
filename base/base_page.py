@@ -1185,10 +1185,6 @@ class BasePage:
             logger.error(f"点击多个文件时失败：{e}")
             return success_count
     
-    import logging
-    
-    logger = logging.getLogger(__name__)
-    
     def long_press_based_on_the_file_name(self, root_layout_locator, file_name_locator, target_locator, filenames,
                                           current_page: int, all_pages: int,
                                           long_press_duration=2000, next_page_locator=None):
