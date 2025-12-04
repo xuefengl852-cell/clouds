@@ -31,7 +31,7 @@ class TestCombinedInteractions:
     
     @allure.title("勾选后向后翻页")
     def test_check_file_next(self, search_check_box_file, check_test_data):
-        result = search_check_box_file
+        result, document_home_page = search_check_box_file
         
         def click_pre_page_but():
             result.click_pre_page_but()

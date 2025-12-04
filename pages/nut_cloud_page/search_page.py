@@ -134,6 +134,10 @@ class SearchPage(BasePage):
         return self.get_locator(locators.PAGE_SECTION, locators.ITEM_NAME_TV)
     
     @property
+    def jan_new_file_tv(self):
+        return self.get_locator(locators.PAGE_SECTION, locators.JAN_NEW_FILE_TV)
+    
+    @property
     def dialog_close(self):
         return self.get_locator(locators.PAGE_SECTION, locators.DIALOG_CLOSE)
     
@@ -148,6 +152,10 @@ class SearchPage(BasePage):
     @property
     def search_move_tv(self):
         return self.get_locator(locators.PAGE_SECTION, locators.SEARCH_MOVE_TV)
+    
+    @property
+    def delete_cancel(self):
+        return self.get_locator(locators.PAGE_SECTION, locators.DELETE_CANCEL)
     
     @property
     def search_sec_tv(self):
@@ -690,9 +698,18 @@ class SearchPage(BasePage):
         """点击搜索页面弹窗取消按钮"""
         try:
             self.click(self.dialog_cancel)
-            logger.info(f"点击取消按扭成功")
+            logger.info(f"点击搜索页取消按扭成功")
         except Exception as e:
-            logger.info(f"点击取消按钮失败")
+            logger.info(f"点击搜索页取消按钮失败")
+            raise e
+    
+    def click_copy_page_cancel_btn(self):
+        """点击复制页面弹窗取消按钮"""
+        try:
+            self.click(self.dialog_cancel)
+            logger.info(f"点击复制页面取消按扭成功")
+        except Exception as e:
+            logger.info(f"点击复制页面取消按钮失败")
             raise e
     
     def click_download_btn(self):
@@ -983,4 +1000,46 @@ class SearchPage(BasePage):
             logger.info(f"下载页面点击返回按钮成功")
         except Exception as e:
             logger.error(f"下载页面点击返回按钮失败")
+            raise e
+    
+    def click_search_delete_btn(self):
+        """点击搜索页删除按钮"""
+        try:
+            self.click(self.search_delete_tv)
+            logger.info(f"点击删除按钮成功")
+        except Exception as e:
+            logger.error(f"点击删除按钮失败")
+            raise e
+    
+    def click_cancel_delete_btn(self):
+        """点击取消删除按钮"""
+        try:
+            self.click(self.delete_cancel)
+            logger.info(f"点击取消删除按钮成功")
+        except Exception as e:
+            logger.error("点击取消删除按钮失败")
+            raise e
+    
+    def verify_delete_prompt_box_success(self):
+        """验证删除提示框存在"""
+        try:
+            delete_prompt = self.wait_for_element(
+                self.jan_new_file_tv
+            )
+            logger.info(f"删除提示框存在")
+            return delete_prompt is not None
+        except Exception as e:
+            logger.error(f"删除提示框不存在")
+            raise e
+    
+    def verify_return_search_page(self):
+        """验证回到搜索页首页"""
+        try:
+            delete_btn = self.wait_for_element(
+                self.search_delete_tv
+            )
+            logger.info(f"搜索主页勾选后的删除按钮存在")
+            return delete_btn is not None
+        except Exception as e:
+            logger.error("搜索主页勾选后的删除按钮不存在")
             raise e

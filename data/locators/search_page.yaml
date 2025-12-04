@@ -83,3 +83,8 @@ locators:
     page_right: "hanvon.aebr.hanvondrive:id/page_right"
     #下载列表点击返回
     dd_drive: "hanvon.aebr.hanvondrive:id/dd_drive"
+    #取消删除按钮
+    delete_cancel: "hanvon.aebr.hanvondrive:id/deletecancel"
+    #删除提示框
+    janNewfileTv: "hanvon.aebr.hanvondrive:id/janNewfileTv"
+

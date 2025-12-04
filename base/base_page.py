@@ -288,7 +288,6 @@ class BasePage:
         except Exception as e:
             logger.error(f"点击元素失败：{locator}")
             raise
-        return self
     
     def input_text(self, locator, text, condition='visible', timeout=None):
         # 输入文本

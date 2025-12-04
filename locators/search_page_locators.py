@@ -43,3 +43,5 @@ class SearchPageLocators:
     PAGE_LEFT = "page_left"
     PAGE_RIGHT = "page_right"
     DD_DRIVE = "dd_drive"
+    DELETE_CANCEL = "delete_cancel"
+    JAN_NEW_FILE_TV = "janNewfileTv"

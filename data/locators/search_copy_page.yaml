@@ -1,0 +1,28 @@
+locators:
+  copy:
+    #新建文件夹
+    new_folder: "hanvon.aebr.hanvondrive:id/iv_newfolder"
+    #文件夹名称
+    tv_folder_name: "hanvon.aebr.hanvondrive:id/tv_folder_name"
+    #文件夹复选框
+    rb_select: "hanvon.aebr.hanvondrive:id/rb_select"
+    #左翻页
+    page_left: "hanvon.aebr.hanvondrive:id/page_left"
+    #右翻页
+    page_right: "hanvon.aebr.hanvondrive:id/page_right"
+    #当前页/总页数
+    page_tv: "hanvon.aebr.hanvondrive:id/page_tv"
+    #取消复制
+    dialog_cancel: "hanvon.aebr.hanvondrive:id/dialog_cancel"
+    #确定复制
+    dialog_sure: "hanvon.aebr.hanvondrive:id/dialog_sure"
+    #进入文件夹
+    bt_enter: "hanvon.aebr.hanvondrive:id/bt_enter"
+    #新建文件夹窗口
+    janNewfileTv: "hanvon.aebr.hanvondrive:id/janNewfileTv"
+    #取消新建文件夹
+    nickNamecancel: "hanvon.aebr.hanvondrive:id/nickNamecancel"
+    #复制窗口title
+    dialog_title: "hanvon.aebr.hanvondrive:id/dialog_title"
+    #复制窗口文件夹父元素定位器
+    rootItemLayout: "hanvon.aebr.hanvondrive:id/rootItemLayout"

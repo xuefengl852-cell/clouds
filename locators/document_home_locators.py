@@ -41,3 +41,5 @@ class DocumentHomeLocators:
     TIME_FILE_TV = "time_file_tv"
     ITEM_NAME_TV = "item_name_tv"
     DIALOG_CLOSE = "dialog_close"
+    BT_BACK = "bt_back"
+    TV_RACK_NIMBLE = "tvRack_nimble"

@@ -21,6 +21,7 @@ from pages.nut_cloud_page.document_home_page import DocumentHomePage
 from pages.nut_cloud_page.file_page import FilePage
 from pages.nut_cloud_page.home_page import HomePage
 from pages.nut_cloud_page.nut_login_page import NutLoginPage
+from utils.device_info_util import APP_INFO_CONFIG
 # 从配置模块导入
 from utils.driver import init_driver
 from utils.test_data_loader import load_test_data
@@ -112,36 +113,6 @@ def cleanup_old_files(directory, extensions, max_files):
                 logger.warning(f"删除文件失败: {e}")
     except Exception as e:
         logger.error(f"清理文件时发生错误: {e}")
-
-
-def cleanup_old_files(directory, extensions, max_files):
-    """清理旧文件，保留最新的 max_files 个指定扩展名的文件"""
-    if not os.path.exists(directory):
-        return
-    
-    try:
-        # 获取所有指定扩展名的文件并按修改时间排序
-        files = []
-        for f in os.listdir(directory):
-            if any(f.lower().endswith(ext) for ext in extensions):
-                files.append(os.path.join(directory, f))
-        
-        files = sorted(
-            files,
-            key=os.path.getmtime,
-            reverse=True
-        )
-        
-        # 删除超出保留数量的旧文件
-        for old_file in files[max_files:]:
-            try:
-                os.remove(old_file)
-                logger.info(f"已删除旧文件: {os.path.basename(old_file)}")
-            except Exception as e:
-                logger.warning(f"删除文件失败: {e}", exc_info=True)
-    
-    except Exception as e:
-        logger.error(f"清理文件时发生错误: {e}", exc_info=True)
 
 
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
@@ -358,12 +329,25 @@ def app_driver(request):
     app_package = request.config.getoption("--app-package", default="com.example.app")
     app_activity = request.config.getoption("--app-activity", default=".MainActivity")
     
-    # 执行智能清理
+    # 执行智能清理，下方注释打开后每一次都会执行清空数据库操作
     # clean_database(device_id)
     """创建并返回Appium driver"""
     driver = init_driver()
     yield driver
     driver.quit()
+
+
+# 3. app_info 夹具（基于独立配置，不再硬编码）
+@pytest.fixture(scope="session")
+def app_info():
+    return APP_INFO_CONFIG  # 直接返回独立配置文件的内容
+
+
+# 3. 👇 新增：页面夹具（创建 DocumentHomePage 实例，传入 driver 和 app_info）
+@pytest.fixture(scope="module")
+def document_home_page(driver, app_info):
+    # 关键：把 app_info 传入页面类的构造函数
+    return DocumentHomePage(driver=driver, app_info=app_info)
 
 
 @pytest.fixture(scope="session")
@@ -493,8 +477,8 @@ def click_nut_cloud(app_driver):
 
 
 @pytest.fixture(scope="function")
-def enter_nut_cloud_home(app_driver, click_nut_cloud, cleanup_manager):
-    document_home_page = DocumentHomePage(app_driver)
+def enter_nut_cloud_home(app_driver, click_nut_cloud, app_info, cleanup_manager):
+    document_home_page = DocumentHomePage(app_driver, app_info)
     document_home_page.register_cleanup = cleanup_manager.register_cleanup
     document_home_page.set_skip_default_cleanup = cleanup_manager.set_skip_default_cleanup
     yield document_home_page
@@ -506,9 +490,9 @@ def enter_nut_cloud_home(app_driver, click_nut_cloud, cleanup_manager):
 
 
 @pytest.fixture(scope="package")
-def enter_folder_page_parametrized(app_driver, click_nut_cloud):
+def enter_folder_page_parametrized(app_driver, click_nut_cloud, app_info):
     """参数化的进入文件夹页面fixture"""
-    enter_nut_cloud_home = DocumentHomePage(app_driver)
+    enter_nut_cloud_home = DocumentHomePage(app_driver, app_info)
     enter_nut_cloud_home.enter_file_page(folder_list[0]["filenames"])
     enter_nut_cloud_home.enter_file_page(folder_list[1]["filenames"])
     yield enter_nut_cloud_home

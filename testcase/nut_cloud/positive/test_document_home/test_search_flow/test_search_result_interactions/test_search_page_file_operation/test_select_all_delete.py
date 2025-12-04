@@ -6,10 +6,9 @@ from utils.test_data_loader import load_test_data
 search_check_home_page_data = load_test_data("search_check_home_page_data.json")
 
 
-@pytest.mark.run(order=20)
-@allure.story("搜索页移动")
-class TestCopySearchPage:
-    
+@pytest.mark.run(order=26)
+@allure.story("全选-删除组合交互")
+class TestSelectAllCopy:
     @pytest.mark.parametrize(
         # 声明需要传递的参数：input_name（给input_name fixture）和check_test_data（给check_test_data fixture）
         "check_test_data",
@@ -28,16 +27,18 @@ class TestCopySearchPage:
         # 指定参数传递给对应的fixture
         indirect=["check_test_data"]
     )
-    @allure.title("多个移动")
-    def test_single_replication(self, search_check_box_file, check_test_data):
-        result, document_home_page = search_check_box_file
+    @allure.title("全选删除")
+    def test_select_all_copy(self, click_select_all_but, check_test_data):
+        result = click_select_all_but
         
-        def click_cancel_copy():
-            result.click_dialog_cancel_btn()
-            result.click_cancel_but()
+        def enter_search_page():
+            result.click_cancel_delete_btn()
+            result.navigate_back(1)
+            result.click_search_document_but()
         
-        result.register_cleanup(click_cancel_copy)
-        with allure.step("点击移动按钮"):
-            result.click_remove_btn()
-        with allure.step("验证出现移动弹窗"):
-            assert result.get_dialog_title_text() == "移动至", f"移动弹窗未正确显示"
+        result.register_cleanup(enter_search_page)
+        with allure.step("点击删除按钮"):
+            result.click_search_delete_btn()
+        
+        with allure.step("验证删除提示框是否正确"):
+            assert result.verify_delete_prompt_box_success(), f"删除提示框未正确弹出"

@@ -28,8 +28,8 @@ class TestDownLoadMultipleFile:
         indirect=["check_test_data"]
     )
     @allure.title("钩选单个文件点击下载")
-    def test_multiple_file_download(self, search_check_box_file, check_test_data):
-        result = search_check_box_file
+    def test_single_file_download(self, search_check_box_file, check_test_data):
+        result, document_home_page = search_check_box_file
         
         def enter_search_page():
             result.check_box_download_file(check_test_data)

@@ -29,10 +29,12 @@ class TestCheckSelectBoxAll:
     )
     @allure.title("全部勾选")
     def test_select_all_check_box(self, search_check_box_file, check_test_data):
-        def click_cancel_select():
-            search_check_box_file.click_cancel_but()
+        search_page, document_home_page = search_check_box_file
         
-        search_check_box_file.register_cleanup(click_cancel_select)
+        def click_cancel_select():
+            search_page.click_cancel_but()
+        
+        search_page.register_cleanup(click_cancel_select)
         
         with allure.step("验证搜索页当前页文件全部选择后全选按钮变为取消全选"):
-            assert search_check_box_file.get_select_all_text() == "取消全选", "全选文件后当前全选状态未变为取消全选"
+            assert search_page.get_select_all_text() == "取消全选", "全选文件后当前全选状态未变为取消全选"

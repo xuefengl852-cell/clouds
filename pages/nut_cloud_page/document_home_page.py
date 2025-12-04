@@ -1,8 +1,11 @@
 import logging
 
+from appium.webdriver.webdriver import WebDriver as AppiumDriver
+
 from base.base_page import BasePage
 from common.device_info import DeviceInfoManager
 from locators.document_home_locators import DocumentHomeLocators
+from utils.app_switcher import AppSwitcher
 from utils.loactor_validator import LocatorValidator
 
 locators = DocumentHomeLocators()
@@ -14,9 +17,11 @@ hardware_version = str(device_info_manager.get_hardware_version())
 
 class DocumentHomePage(BasePage):
     
-    def __init__(self, driver):
-        super().__init__(driver)
+    def __init__(self, driver: AppiumDriver, app_info):
+        super().__init__(driver=driver)
         logger.info(f"进入主页")
+        self.appium_driver = driver
+        self.app_info = app_info
         locator_validator.validate(self)
     
     @property
@@ -34,6 +39,14 @@ class DocumentHomePage(BasePage):
     @property
     def refresh(self):
         return self.get_locator(locators.PAGE_SECTION, locators.REFRESH)
+    
+    @property
+    def bt_back(self):
+        return self.get_locator(locators.PAGE_SECTION, locators.BT_BACK)
+    
+    @property
+    def tvRack_nimble(self):
+        return self.get_locator(locators.PAGE_SECTION, locators.TV_RACK_NIMBLE)
     
     @property
     def setup(self):
@@ -411,20 +424,6 @@ class DocumentHomePage(BasePage):
         )
         return click_status
     
-    def get_page_number_text(self):
-        """获取页码当前页、总页数"""
-        try:
-            page_text = self.get_element_attribute(
-                self.page_tv,
-                "text"
-            )
-            
-            current_page, all_pages = map(int, page_text.split('/'))
-            return current_page, all_pages
-        except Exception as e:
-            logger.error(f"获取页码失败{e}")
-            raise
-    
     def long_press_the_folder_by_name(self, filename):
         """根据名称长按文件夹"""
         try:
@@ -643,6 +642,17 @@ class DocumentHomePage(BasePage):
         except Exception as e:
             logger.error(f"获取页码失败{e}")
             raise
+    
+    def switch_bookshelf_app(self):
+        """切换到书架"""
+        switcher = AppSwitcher(
+            driver=self.appium_driver
+        )
+        switcher.switch_to_target_app(
+            target_app_info=self.app_info["bookshelf_app"],
+            app_locator=self.tvRack_nimble
+        
+        )
     
     class MorePopWindow(BasePage):
         CONFIG_PATH = "data/locators/document_home_page.yaml"

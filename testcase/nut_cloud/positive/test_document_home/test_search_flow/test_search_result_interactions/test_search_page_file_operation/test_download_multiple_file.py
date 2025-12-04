@@ -29,7 +29,7 @@ class TestDownLoadMultipleFile:
     )
     @allure.title("钩选多个文件点击下载")
     def test_multiple_file_download(self, search_check_box_file, check_test_data):
-        result = search_check_box_file
+        result, document_home_page = search_check_box_file
         
         def enter_search_page():
             result.check_box_download_file(check_test_data)
@@ -48,6 +48,7 @@ class TestDownLoadMultipleFile:
             result.click_transmission_list_btn()
         download_number = result.get_download_list_file_number()
         with allure.step("验证下载数量是否正确"):
-            assert len(download_number) == len(check_test_data), f"下载数量错误"
+            assert len(download_number) == len(
+                check_test_data), f"下载数量错误，勾选数量：{len(download_number)}，文件数量：{len(check_test_data)}"
         with allure.step("验证下载列表下载正确"):
             result.check_download_progress(check_test_data), f"文件下载失败"

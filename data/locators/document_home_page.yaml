@@ -8,6 +8,8 @@ locators:
     download: "hanvon.aebr.hanvondrive:id/bt_download"
     #刷新按钮
     refresh: "hanvon.aebr.hanvondrive:id/bt_refresh"
+    # 文件列表父容器（所有文件项的外层 RecyclerView，从 XML 中提取）
+    root_recyclerview: "hanvon.aebr.hanvondrive:id/drive_recyclerview"
     #更多按钮
     setup: "hanvon.aebr.hanvondrive:id/bt_setup"
     #文件、文件夹右上角选择按钮
@@ -23,18 +25,21 @@ locators:
     dd_drive: "hanvon.aebr.hanvondrive:id/dd_drive"
     #更多弹窗
     root_layout: "hanvon.aebr.hanvondrive:id/rootLayout"
+
     #文件下载状态
     status_grid_tv: "hanvon.aebr.hanvondrive:id/statusGridTv"
     #左翻页
     pre_page: "hanvon.aebr.hanvondrive:id/iv_prepage"
     #右翻页
-    next_page: "hanvon.aebr.hanvondrive:id/iv_nextpage"
+    #    next_page: "hanvon.aebr.hanvondrive:id/iv_nextpage"
+    next_page: "hanvon.aebr.hanvondrive:id/page_right"
+
     #总页数
     page_tv: "hanvon.aebr.hanvondrive:id/page_tv"
     #坚果云网盘标志
     tv_account: "hanvon.aebr.hanvondrive:id/tv_accout"
     #文件、文件夹父元素
-    document_parent_element: "hanvon.aebr.hanvondrive:id/rootLayout"
+    document_parent_element: "hanvon.aebr.hanvondrive:id/drive_recyclerview"
     #搜索框元素
     jan_search_et: "hanvon.aebr.hanvondrive:id/janSearchEt"
     jan_pop_sort: "hanvon.aebr.hanvondrive:id/phonejanpopsortTv"
@@ -78,3 +83,7 @@ locators:
     item_name_tv: "hanvon.aebr.hanvondrive:id/itemNameTv"
     #文件详情关闭
     dialog_close: "hanvon.aebr.hanvondrive:id/dialog_close"
+    #进入书架标志
+    tvRack_nimble: "hanvon.aebr.hvLauncher:id/tvRack_nimble"
+    #进入网盘标志
+    bt_back: "hanvon.aebr.hanvondrive:id/bt_back"
