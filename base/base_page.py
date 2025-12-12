@@ -1113,16 +1113,15 @@ class BasePage:
                                      current_page: int, all_pages: int,
                                      next_page_locator=None):
         """
-        根据多个文件名点击对应的元素（支持分页查找）
-
-        :param all_pages: 所有页
-        :param current_page: 当前页
+        根据文件名称进行点击元素
         :param root_layout_locator: 父定位器
         :param file_name_locator: 文件名称定位器
-        :param checkbox_locator: 被点击元素定位器
-        :param filenames: 文件名称列表，如 ["file1.pdf", "file2.jpg"]
-        :param next_page_locator: 下一页按钮定位器（如无分页可省略）
-        :return: 成功点击的文件数量
+        :param checkbox_locator: 需要点击的定位器
+        :param filenames: 文件名称
+        :param current_page: 当前页
+        :param all_pages: 所有页
+        :param next_page_locator: 下一页按钮定位器
+        :return: 点击个数
         """
         success_count = 0
         remaining_filenames = filenames.copy()  # 记录未找到的文件名，避免重复查找
@@ -1140,7 +1139,6 @@ class BasePage:
                         try:
                             name_element = item.find_element(*file_name_locator)
                             current_filename = name_element.text.strip()  # 去除空格，避免匹配误差
-                            
                             if current_filename == target_filename:
                                 # 找到目标文件，点击复选框
                                 checkbox_element = item.find_element(*checkbox_locator)
@@ -1457,7 +1455,7 @@ class BasePage:
             for index, element in enumerate(child_elements, 1):
                 text = element.text  # 去除首尾空格
                 child_texts.append(text)
-                self.logger.debug(f"第 {index} 个子元素文本：{text}")
+                logger.debug(f"第 {index} 个子元素文本：{text}")
             
             logger.info(f"成功获取 {len(child_texts)} 个子元素文本")
             return child_texts

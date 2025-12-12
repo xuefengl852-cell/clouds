@@ -24,6 +24,7 @@ def init_driver():
         command_executor=config['appium']['server_url'],
         options=options
     )
+    
     # 验证：是否成功启动目标 App（通过 appPackage 校验当前运行的 App）
     current_app = driver.current_package
     target_app = device_config.get('appPackage')

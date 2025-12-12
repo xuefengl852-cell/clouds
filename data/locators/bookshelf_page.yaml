@@ -1,0 +1,36 @@
+locators:
+  bookshelf:
+    #文件夹父元素（可点击）
+    layout: "hanvon.aebr.hvLauncher:id/layout"
+    #文件夹名称
+    tv_group_name: "hanvon.aebr.hvLauncher:id/tv_group_name"
+    #文件夹内第一个元素（可点击）
+    imageView1: "hanvon.aebr.hvLauncher:id/imageView1"
+    #文件名称
+    tv_book_title: "hanvon.aebr.hvLauncher:id/tv_book_title"
+    #返回首页
+    rl_title_folder: "hanvon.aebr.hvLauncher:id/rl_title_folder"
+    #更多按钮
+    ivMore: "hanvon.aebr.hvLauncher:id/ivMore"
+    #批量管理
+    tvBatch: "hanvon.aebr.hvLauncher:id/tvBatch"
+    #全选按钮
+    ll_select: "hanvon.aebr.hvLauncher:id/ll_select"
+    #上传网盘
+    ll_upload_net: "hanvon.aebr.hvLauncher:id/ll_upload_net"
+    #取消选择文件
+    iv_manage_cancel: "hanvon.aebr.hvLauncher:id/iv_manage_cancel"
+    #点击下一页
+    nextBtn: "hanvon.aebr.hvLauncher:id/nextBtn"
+    #点击上一页
+    previousBtn: "hanvon.aebr.hvLauncher:id/previousBtn"
+    #当前页/所有页
+    progressTv: "hanvon.aebr.hvLauncher:id/progressTv"
+    #进入的文件夹名称
+    tv_folder: "hanvon.aebr.hvLauncher:id/tv_folder"
+    #移出
+    ll_delete: "hanvon.aebr.hvLauncher:id/ll_delete"
+    #删除本地
+    cb_check: "hanvon.aebr.hvLauncher:id/cb_check"
+    #确定移出
+    enterBtn: "hanvon.aebr.hvLauncher:id/enterBtn"

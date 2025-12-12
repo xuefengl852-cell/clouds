@@ -1,0 +1,22 @@
+locators:
+  download:
+    #返回按钮
+    dd_drive: "hanvon.aebr.hanvondrive:id/dd_drive"
+    #下载按钮
+    downLayout: "hanvon.aebr.hanvondrive:id/downLayout"
+    #上传按钮
+    uploadLayout: "hanvon.aebr.hanvondrive:id/uploadLayout"
+    #下载列表文件名称
+    janDdTitleNameTv: "hanvon.aebr.hanvondrive:id/janDdTitleNameTv"
+    #下载列表文件当前大小/总大小
+    janDdInfoTv: "hanvon.aebr.hanvondrive:id/janDdInfoTv"
+    #下载-进度条、打开、失败按钮
+    janDdStatusTv: "hanvon.aebr.hanvondrive:id/janDdStatusTv"
+    #文件勾选按钮
+    janDdChb: "hanvon.aebr.hanvondrive:id/janDdChb"
+    #当前页/总页数
+    page_tv: "hanvon.aebr.hanvondrive:id/page_tv"
+    #上一页按钮
+    page_left: "hanvon.aebr.hanvondrive:id/page_left"
+    #下一页按钮
+    page_right: "hanvon.aebr.hanvondrive:id/page_right"

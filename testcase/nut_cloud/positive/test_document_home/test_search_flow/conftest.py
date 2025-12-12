@@ -9,8 +9,8 @@ logger = logging.getLogger(__name__)
 
 
 @pytest.fixture(scope="package")
-def enter_search_flow(app_driver, enter_folder_page_parametrized, app_info):
-    document_home_page = DocumentHomePage(app_driver, app_info)
+def enter_search_flow(app_driver, enter_folder_page_parametrized):
+    document_home_page = DocumentHomePage(app_driver)
     search_page = SearchPage(document_home_page.driver)
     document_home_page.click_search_button()
     yield search_page

@@ -1,6 +1,7 @@
 import allure
 import pytest
 
+from pages.nut_cloud_page.search_page import SearchPage
 from utils.test_data_loader import load_test_data
 
 search_check_home_page_data = load_test_data("download_large_memory_files_data.json")
@@ -32,6 +33,7 @@ copy_page_enter_folder = load_test_data("copy_page_enter_folder.json")
     indirect=["check_test_data", "folder_name_first", "enter_folder_second"]
 )
 @allure.story("复制页面新建文件夹")
+@pytest.mark.run(order=27)
 class TestCopyPageNewFolder:
     
     @allure.title("新建文件夹")
@@ -49,7 +51,16 @@ class TestCopyPageNewFolder:
             assert result.verify_new_folder_windows()
     
     @allure.title("取消新建文件夹")
-    def test_cancel_new_folder(self, click_search_copy_new_folder_btn):
+    def test_cancel_new_folder(self, click_search_copy_new_folder_btn, app_driver):
         result = click_search_copy_new_folder_btn
+        
+        def click_cancel_btn():
+            search_page = SearchPage(app_driver)
+            result.click_cancel_copy_btn()
+            search_page.click_cancel_but()
+            search_page.click_search_return()
+        
+        result.register_cleanup(click_cancel_btn)
+        
         with allure.step("点击取消按钮"):
             result.click_copy_cancel_button()

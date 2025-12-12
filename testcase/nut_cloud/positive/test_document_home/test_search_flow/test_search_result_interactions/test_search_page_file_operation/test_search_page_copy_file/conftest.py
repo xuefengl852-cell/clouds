@@ -6,10 +6,10 @@ from pages.nut_cloud_page.search_page import SearchPage
 
 
 @pytest.fixture(scope="package")
-def search_base_state(app_driver, app_info, enter_folder_page_parametrized):
+def search_base_state(app_driver, enter_folder_page_parametrized):
     """package 级：仅初始化页面实例，不执行业务操作，保证无参数依赖"""
     # 步骤1：打开搜索页面（整个包只执行1次，基础状态）
-    document_home_page = DocumentHomePage(app_driver, app_info)
+    document_home_page = DocumentHomePage(app_driver)
     search_page = SearchPage(document_home_page.driver)
     document_home_page.click_search_button()
     

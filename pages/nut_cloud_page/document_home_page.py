@@ -5,7 +5,6 @@ from appium.webdriver.webdriver import WebDriver as AppiumDriver
 from base.base_page import BasePage
 from common.device_info import DeviceInfoManager
 from locators.document_home_locators import DocumentHomeLocators
-from utils.app_switcher import AppSwitcher
 from utils.loactor_validator import LocatorValidator
 
 locators = DocumentHomeLocators()
@@ -17,16 +16,19 @@ hardware_version = str(device_info_manager.get_hardware_version())
 
 class DocumentHomePage(BasePage):
     
-    def __init__(self, driver: AppiumDriver, app_info):
+    def __init__(self, driver: AppiumDriver):
         super().__init__(driver=driver)
         logger.info(f"进入主页")
         self.appium_driver = driver
-        self.app_info = app_info
         locator_validator.validate(self)
     
     @property
     def return_button(self):
         return self.get_locator(locators.PAGE_SECTION, locators.BACK)
+    
+    @property
+    def root_recyclerview(self):
+        return self.get_locator(locators.PAGE_SECTION, locators.ROOT_RECYCLER_VIEW)
     
     @property
     def search(self):
@@ -545,7 +547,7 @@ class DocumentHomePage(BasePage):
                 self.click_based_on_the_file_name(
                     self.root_layout,
                     self.file_grid_tv_id,
-                    self.jan_grid_tv,
+                    self.root_layout,
                     filenames,
                     current_page,
                     all_pages,
@@ -579,7 +581,7 @@ class DocumentHomePage(BasePage):
         click_status = self.click_based_on_the_file_name(
             self.root_layout,
             self.file_grid_tv_id,
-            self.jan_grid_tv,
+            self.root_layout,
             filenames,
             current_page,
             all_pages,
@@ -642,17 +644,6 @@ class DocumentHomePage(BasePage):
         except Exception as e:
             logger.error(f"获取页码失败{e}")
             raise
-    
-    def switch_bookshelf_app(self):
-        """切换到书架"""
-        switcher = AppSwitcher(
-            driver=self.appium_driver
-        )
-        switcher.switch_to_target_app(
-            target_app_info=self.app_info["bookshelf_app"],
-            app_locator=self.tvRack_nimble
-        
-        )
     
     class MorePopWindow(BasePage):
         CONFIG_PATH = "data/locators/document_home_page.yaml"

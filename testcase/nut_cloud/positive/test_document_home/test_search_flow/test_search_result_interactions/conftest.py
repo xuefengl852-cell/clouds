@@ -48,9 +48,9 @@ def select_all_files(enter_search_page):
 
 
 @pytest.fixture(scope="function")
-def search_check_box_file(enter_search_flow, check_test_data, app_info, cleanup_manager):
+def search_check_box_file(enter_search_flow, check_test_data, cleanup_manager):
     enter_search_flow.click_search_file_name(check_test_data)
-    document_home_page = DocumentHomePage(enter_search_flow.driver, app_info)
+    document_home_page = DocumentHomePage(enter_search_flow.driver)
     enter_search_flow.register_cleanup = cleanup_manager.register_cleanup
     enter_search_flow.set_skip_default_cleanup = cleanup_manager.set_skip_default_cleanup
     yield enter_search_flow, document_home_page

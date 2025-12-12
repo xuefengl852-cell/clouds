@@ -30,7 +30,7 @@ class TestDownLoadMultipleFile:
     
     @allure.title("钩选多个文件点击删除")
     def test_single_file_delete(self, search_check_box_file, check_test_data):
-        result = search_check_box_file
+        result, document_home_page = search_check_box_file
         
         def enter_search_page():
             result.click_cancel_delete_btn()

@@ -12,6 +12,7 @@ from _pytest.fixtures import FixtureRequest
 from appium import webdriver
 from loguru import logger
 
+from pages.bookshelf_app.bookshelf_page import BookshelfPage
 from pages.cloud_sort_page import CloudSortPage
 from pages.clouds_more_page import CloudsMorePage
 from pages.home_clouds_page import HomeCloudsPage
@@ -21,7 +22,7 @@ from pages.nut_cloud_page.document_home_page import DocumentHomePage
 from pages.nut_cloud_page.file_page import FilePage
 from pages.nut_cloud_page.home_page import HomePage
 from pages.nut_cloud_page.nut_login_page import NutLoginPage
-from utils.device_info_util import APP_INFO_CONFIG
+from utils.app_switcher import AppSwitcher
 # 从配置模块导入
 from utils.driver import init_driver
 from utils.test_data_loader import load_test_data
@@ -337,17 +338,17 @@ def app_driver(request):
     driver.quit()
 
 
-# 3. app_info 夹具（基于独立配置，不再硬编码）
-@pytest.fixture(scope="session")
-def app_info():
-    return APP_INFO_CONFIG  # 直接返回独立配置文件的内容
+@pytest.fixture(scope="function")
+def app_switcher(app_driver):
+    """应用切换工具类的 fixture"""
+    return AppSwitcher(app_driver)
 
 
 # 3. 👇 新增：页面夹具（创建 DocumentHomePage 实例，传入 driver 和 app_info）
 @pytest.fixture(scope="module")
-def document_home_page(driver, app_info):
+def document_home_page(driver):
     # 关键：把 app_info 传入页面类的构造函数
-    return DocumentHomePage(driver=driver, app_info=app_info)
+    return DocumentHomePage(driver=driver)
 
 
 @pytest.fixture(scope="session")
@@ -477,8 +478,8 @@ def click_nut_cloud(app_driver):
 
 
 @pytest.fixture(scope="function")
-def enter_nut_cloud_home(app_driver, click_nut_cloud, app_info, cleanup_manager):
-    document_home_page = DocumentHomePage(app_driver, app_info)
+def enter_nut_cloud_home(app_driver, click_nut_cloud, cleanup_manager):
+    document_home_page = DocumentHomePage(app_driver)
     document_home_page.register_cleanup = cleanup_manager.register_cleanup
     document_home_page.set_skip_default_cleanup = cleanup_manager.set_skip_default_cleanup
     yield document_home_page
@@ -490,9 +491,9 @@ def enter_nut_cloud_home(app_driver, click_nut_cloud, app_info, cleanup_manager)
 
 
 @pytest.fixture(scope="package")
-def enter_folder_page_parametrized(app_driver, click_nut_cloud, app_info):
+def enter_folder_page_parametrized(app_driver, click_nut_cloud):
     """参数化的进入文件夹页面fixture"""
-    enter_nut_cloud_home = DocumentHomePage(app_driver, app_info)
+    enter_nut_cloud_home = DocumentHomePage(app_driver)
     enter_nut_cloud_home.enter_file_page(folder_list[0]["filenames"])
     enter_nut_cloud_home.enter_file_page(folder_list[1]["filenames"])
     yield enter_nut_cloud_home
@@ -522,4 +523,10 @@ def more_pop_window_page(app_driver, page_fixture, request: FixtureRequest, clea
     more_pop_window.register_cleanup = cleanup_manager.register_cleanup
     yield more_pop_window
 
-# 使用参数化的fixture版本
+
+@pytest.fixture(scope="function")
+def bookshelf_home(app_switcher, app_driver, cleanup_manager):
+    bookshelf_page = BookshelfPage(app_switcher.driver)
+    bookshelf_page.register_cleanup = cleanup_manager.register_cleanup
+    bookshelf_page.set_skip_default_cleanup = cleanup_manager.set_skip_default_cleanup
+    yield bookshelf_page

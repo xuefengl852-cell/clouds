@@ -55,6 +55,10 @@ class SearchCopyPage(BasePage):
         return self.get_locator(locators.PAGE_SECTION, locators.BT_ENTER)
     
     @property
+    def tv_rack_nimble(self):
+        return self.get_locator(locators.PAGE_SECTION, locators.TV_RACK_NIMBLE)
+    
+    @property
     def jan_new_file_tv(self):
         return self.get_locator(locators.PAGE_SECTION, locators.JAN_NEW_FILE_TV)
     
@@ -113,15 +117,15 @@ class SearchCopyPage(BasePage):
             self.click_based_on_the_file_name(
                 self.root_item_layout,
                 self.tv_folder_name,
-                self.tv_folder_name,
+                self.root_item_layout,
                 folder_name,
                 current_page,
                 all_pages,
                 self.page_right
             )
-            logger.info(f"点击复制窗口：{folder_name}文件夹进入成功")
+            logger.info(f"搜索-复制页面，{folder_name}文件夹进入成功")
         except Exception as e:
-            logger.error(f"点击复制窗口：{folder_name}文件夹进入失败")
+            logger.error(f"搜索-复制页面，{folder_name}文件夹进入失败")
             raise e
     
     def check_copy_page_folder_name(self, folder_name):
@@ -140,4 +144,26 @@ class SearchCopyPage(BasePage):
             logger.info(f"勾选复制窗口：{folder_name}。文件夹成功")
         except Exception as e:
             logger.error(f"勾选复制窗口：{folder_name}。文件夹失败")
+            raise e
+    
+    def verify_bookshelf_app_success(self):
+        """验证进入书架"""
+        try:
+            bookshelf_app_element = self.wait_for_element(self.tv_rack_nimble)
+            logger.info(f"进入书架成功")
+            return bookshelf_app_element is not None
+        except Exception as e:
+            logger.error(f"进入书架失败")
+            raise e
+    
+    def click_cancel_copy_btn(self):
+        
+        """点击取消复制按钮"""
+        try:
+            self.click(
+                self.dialog_cancel
+            )
+            logger.info(f"点击取消复制按钮成功")
+        except Exception as e:
+            logger.error(f"点击取消复制按钮失败")
             raise e

@@ -13,3 +13,4 @@ class SearchCopyPageLocators:
     NICK_NAME_CANCEL = "nickNamecancel"
     DIALOG_TITLE = "dialog_title"
     ROOT_ITEM_LAYOUT = "rootItemLayout"
+    TV_RACK_NIMBLE = "tvRack_nimble"

@@ -43,3 +43,4 @@ class DocumentHomeLocators:
     DIALOG_CLOSE = "dialog_close"
     BT_BACK = "bt_back"
     TV_RACK_NIMBLE = "tvRack_nimble"
+    ROOT_RECYCLER_VIEW = "root_recyclerview"

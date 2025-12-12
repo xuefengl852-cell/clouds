@@ -1,69 +1,81 @@
 import logging
+import os
 
-from appium.webdriver.webdriver import WebDriver as AppiumDriver
+from appium.options.android import UiAutomator2Options
 
 from base.base_page import BasePage
+from utils.adb_helper import ADBHelper
+from utils.config_loader import load_yaml_config
 
+config_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../config/config.yaml'))
+config = load_yaml_config(config_path)
 logger = logging.getLogger(__name__)
+options = UiAutomator2Options()
 
 
 class AppSwitcher(BasePage):
-    """APP切换工具类（直接继承BasePage，复用正确的Appium驱动）"""
+    CONFIG_PATH = "data/locators/bookshelf_page.yaml"
     
-    def __init__(self, driver: AppiumDriver, timeout=None):
-        """
-        构造函数：适配 BasePage 的参数要求
-        :param driver: Appium 驱动实例（传递给 BasePage）
-        :param timeout: 超时时间（可选，传递给 BasePage）
-        """
-        # 调用 BasePage 的构造函数，传递必需的 driver 参数，以及可选的 timeout
-        super().__init__(driver=driver, timeout=timeout)
+    def __init__(self, driver):
+        super().__init__(driver)
+        # 1. 从 driver capabilities 中获取设备 ID（支持多设备）
+        device_id = driver.capabilities.get("deviceName") or driver.capabilities.get("udid")
+        # 2. 初始化 ADBHelper，传入设备 ID
+        self.adb_helper = ADBHelper(device_id=device_id)
+    
+    def switch_bookshelf_app(self):
+        """使用 ADBHelper 执行 adb 命令切换到书架应用"""
+        logger.info("=== 开始切换到书架应用 ===")
         
-        # 验证驱动类型（确保是 Appium 驱动，有 start_activity 方法）
-        if not isinstance(driver, AppiumDriver):
-            raise TypeError(
-                f"驱动类型错误！需要 AppiumDriver，实际传入：{type(driver)}"
-            )
-        logger.info(f"✅ AppSwitcher 驱动类型：{type(driver)}（AppiumDriver）")
-    
-    def switch_to_target_app(self, target_app_info, app_locator, condition='visible'):
-        """切换到目标应用（复用 BasePage 的 driver 和 wait_for_element）"""
+        # 1. 构建 startActivity 命令（基于你提供的有效 adb 命令）
+        adb_command = [
+            "shell", "am", "start", "-W",
+            "-a", "android.intent.action.VIEW",
+            "-d", "switch://hanvon.aebr.hvLauncher?to=rack",
+            "-p", "hanvon.aebr.hvLauncher"
+        ]
+        
         try:
-            # 核心：调用 Appium 驱动的 start_activity（继承自 BasePage 的 self.driver）
-            self.driver.start_activity(
-                app_package=target_app_info["appPackage"],
-                app_activity=target_app_info["appActivity"]
-            )
+            # 2. 使用 ADBHelper 执行命令
+            result = self.adb_helper.execute_command(adb_command)
+            logger.info(f"adb 命令执行成功，输出: {result}")
             
-            # 验证包名切换成功
-            current_package = self.driver.current_package
-            assert current_package == target_app_info["appPackage"], \
-                f"切换失败！当前包名：{current_package}，期望：{target_app_info['appPackage']}"
+            # 3. 验证启动结果（可选，根据实际输出调整）
+            if "Error" in result or "Failed" in result:
+                logger.error(f"应用启动失败，adb 输出含错误: {result}")
+                raise Exception(f"书架应用启动失败: {result}")
             
-            # 复用 BasePage 的 wait_for_element（继承获得，无需额外传递）
-            element = self.wait_for_element(locator=app_locator, condition=condition)
-            assert element is not None, f"目标应用元素未找到：{app_locator}"
-            
-            logger.info(f"✅ 成功切换到目标应用：{target_app_info['appPackage']}")
-            return True
+            logger.info("=== 书架应用切换成功 ===")
         except Exception as e:
-            logger.error(f"❌ 切换目标应用失败：{str(e)}", exc_info=True)
+            logger.error(f"切换书架应用失败: {e}")
             raise
-    #
-    # def switch_back_to_origin(self, origin_app_info, drive_locator, condition='visible'):
-    #     """切回原应用"""
-    #     try:
-    #         self.driver.start_activity(
-    #             app_package=origin_app_info["appPackage"],
-    #             app_activity=origin_app_info["appActivity"]
-    #         )
-    #         current_package = self.driver.current_package
-    #         assert current_package == origin_app_info["appPackage"], \
-    #             f"切回失败！当前包名：{current_package}，期望：{origin_app_info['appPackage']}"
-    #         element = self.wait_for_element(locator=drive_locator, condition=condition)
-    #         assert element is not None, f"原应用元素未找到：{drive_locator}"
-    #         logger.info(f"✅ 成功切回原应用：{origin_app_info['appPackage']}")
-    #         return True
-    #     except Exception as e:
-    #         logger.error(f"❌ 切回原应用失败：{str(e)}", exc_info=True)
-    #         raise
+    
+    def switch_hv_drive_app(self):
+        """修正版：不带设备ID，切换到汉王驾驶应用"""
+        logger.info("=== 开始切换到汉王驾驶应用 ===")
+        
+        # 读取配置（仅包名/Activity，无设备ID）
+        device_config = config['device']
+        drive_package = device_config.get('appPackage')
+        drive_activity = device_config.get('appActivity')
+        
+        # 打印配置（确认包名/Activity正确）
+        logger.debug(f"执行配置 → 包名：{drive_package}，Activity：{drive_activity}")
+        
+        # 构建和手动命令完全一致的命令（无-s参数）
+        bring_foreground_cmd = [
+            "shell",
+            "am",
+            "start",
+            "-W",  # 关键：等待应用前台唤醒完成（不重启）
+            "-n",
+            f"{drive_package}/{drive_activity}"
+        ]
+        
+        try:
+            # 打印最终执行的命令（验证无-s）
+            full_cmd = self.adb_helper.execute_command(bring_foreground_cmd)
+            logger.debug(f"调前台命令：{' '.join(full_cmd)}")
+        except Exception as e:
+            logger.error("=== 切换失败 ===", exc_info=True)
+            raise

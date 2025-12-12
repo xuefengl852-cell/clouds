@@ -20,9 +20,10 @@ device:
 
 #书架应用
 bookshelf_app:
-  appPackage: com.hanvon.recents
-  appActivity: com.hanvon.recents.MainActivity
-
+  intentAction: android.intent.action.VIEW  # 必须：指定 Intent Action
+  intentData: switch://hanvon.aebr.hvLauncher?to=rack  # 必须：指定 Intent Data URI
+  intentFlags: 268435456  # 可选：FLAG_ACTIVITY_NEW_TASK
+  package: hanvon.aebr.hvLauncher
 # ======================
 # Appium服务器配置
 # ======================

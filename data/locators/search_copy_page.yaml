@@ -1,7 +1,7 @@
 locators:
   copy:
     #新建文件夹
-    new_folder: "hanvon.aebr.hanvondrive:id/iv_newfolder"
+    new_folder: "hanvon.aebr.hanvondrive:id/rl_newfolder"
     #文件夹名称
     tv_folder_name: "hanvon.aebr.hanvondrive:id/tv_folder_name"
     #文件夹复选框
@@ -26,3 +26,5 @@ locators:
     dialog_title: "hanvon.aebr.hanvondrive:id/dialog_title"
     #复制窗口文件夹父元素定位器
     rootItemLayout: "hanvon.aebr.hanvondrive:id/rootItemLayout"
+    #书架标志
+    tvRack_nimble: "hanvon.aebr.hvLauncher:id/tvRack_nimble"

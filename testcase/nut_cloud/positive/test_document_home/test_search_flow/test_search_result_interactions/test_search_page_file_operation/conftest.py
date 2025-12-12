@@ -8,12 +8,12 @@ logger = logging.getLogger(__name__)
 
 
 @pytest.fixture(scope="function")  # 明确指定function级别（默认也是function，可省略）
-def checked_interface_with_cleanup(enter_search_page, app_info, check_test_data, cleanup_manager):
+def checked_interface_with_cleanup(enter_search_page, check_test_data, cleanup_manager):
     """
     依赖keep_checked_interface，保持勾选界面状态，并在测试后执行清理动作
     """
     interface = enter_search_page
-    document_home_page = DocumentHomePage(enter_search_page.driver, app_info)
+    document_home_page = DocumentHomePage(enter_search_page.driver)
     interface.click_search_file_name(check_test_data)
     interface.register_cleanup = cleanup_manager.register_cleanup
     interface.set_skip_default_cleanup = cleanup_manager.set_skip_default_cleanup

@@ -15,9 +15,10 @@ locators:
     #搜索按钮
     bt_search: "hanvon.aebr.hanvondrive:id/bt_search"
     #左翻页
-    pre_page: "hanvon.aebr.hanvondrive:id/iv_prepage"
+    pre_page: "hanvon.aebr.hanvondrive:id/page_left"
     #右翻页
-    next_page: "hanvon.aebr.hanvondrive:id/iv_nextpage"
+    #    next_page: "hanvon.aebr.hanvondrive:id/iv_nextpage"
+    next_page: "hanvon.aebr.hanvondrive:id/page_right"
     #总页数
     page_tv: "hanvon.aebr.hanvondrive:id/page_tv"
     #搜索结果元素父定位器

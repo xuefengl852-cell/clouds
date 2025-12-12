@@ -1,14 +1,18 @@
 import logging
 import re
-import time
 
 from base.base_page import BasePage
+from locators.bookshelf_page_locators import BookshelfPageLocators
 from locators.search_page_locators import SearchPageLocators
+from pages.nut_cloud_page.document_home_page import DocumentHomePage
+from pages.nut_cloud_page.home_page import HomePage
 from utils.loactor_validator import LocatorValidator
+from utils.test_data_loader import load_test_data
 
 logger = logging.getLogger(__name__)
 locator_validator = LocatorValidator()
 locators = SearchPageLocators()
+bookshelf_locators = BookshelfPageLocators()
 
 
 class SearchPage(BasePage):
@@ -740,213 +744,6 @@ class SearchPage(BasePage):
             logger.error(f"获取当前弹窗文本失败")
             raise e
     
-    def _parse_size_to_bytes(self, size_str):
-        """将大小文本（如“1.3GB”“500MB”）转为字节数"""
-        unit_map = {
-            'B': 1,
-            'KB': 1024,
-            'MB': 1024 * 1024,
-            'GB': 1024 * 1024 * 1024,
-            'TB': 1024 * 1024 * 1024 * 1024
-        }
-        match = re.search(r'(\d+\.?\d*)\s*([KMGTB]?B)', size_str.strip(), re.IGNORECASE)
-        if not match:
-            raise ValueError(f"无法解析大小文本：{size_str}")
-        size_num = float(match.group(1))
-        unit = match.group(2).upper()
-        return int(round(size_num * unit_map.get(unit, 1)))
-    
-    def _parse_progress(self, status_text):
-        """把“下载中X%”“打开”“重试”转成0~100的数字"""
-        if "打开" in status_text:
-            return 100.0
-        match = re.search(r'(\d+)%', status_text)
-        if match:
-            return float(match.group(1))
-        if "重试" in status_text:
-            return 0.0
-        return 0.0
-    
-    def check_download_progress(self, filenames, max_timeout=300, check_interval=2, stagnant_threshold=5):
-        """
-        最终版：完成判定优先级 → 状态打开 > 进度100% > 大小完成
-        """
-        
-        def format_size(bytes_val):
-            if bytes_val >= 1024 * 1024 * 1024:
-                return f"{bytes_val / (1024 * 1024 * 1024):.1f}GB"
-            elif bytes_val >= 1024 * 1024:
-                return f"{bytes_val / (1024 * 1024):.1f}MB"
-            elif bytes_val >= 1024:
-                return f"{bytes_val / 1024:.1f}KB"
-            return f"{bytes_val}B"
-        
-        # 初始化核心变量
-        file_progress_record = {
-            filename: {
-                "last_progress": 0.0,
-                "stagnant_count": 0,
-                "is_failed": False
-            } for filename in filenames
-        }
-        start_time = time.time()
-        download_size_dict = {}
-        is_single_file = len(filenames) == 1
-        
-        while time.time() - start_time < max_timeout:
-            download_dict = self.get_locator_checked_status(
-                self.root_list_layout,
-                self.janDdTitleNameTv,
-                self.jan_dd_status_tv,
-                "text",
-                filenames
-            )
-            download_size_dict = self.get_locator_checked_status(
-                self.root_list_layout,
-                self.janDdTitleNameTv,
-                self.janDdInfoTv,
-                "text",
-                filenames
-            )
-            logger.info(f"当前所有文件下载状态：{download_dict}")
-            logger.info(f"当前所有文件大小状态：{download_size_dict}")
-            
-            completed_files = []
-            failed_files = []
-            normal_files = []
-            
-            for filename in filenames:
-                if file_progress_record[filename]["is_failed"]:
-                    failed_files.append(filename)
-                    continue
-                
-                if filename not in download_dict:
-                    logger.warning(f"未找到文件【{filename}】的下载状态，继续监控")
-                    normal_files.append(filename)
-                    continue
-                
-                status_text = download_dict[filename].strip()
-                current_progress = self._parse_progress(status_text)
-                logger.info(f"文件 {filename} 进度: {current_progress}% | 状态: {status_text}")
-                
-                # 重试状态处理
-                if "重试" in status_text:
-                    file_progress_record[filename]["is_failed"] = True
-                    failed_files.append(filename)
-                    logger.error(f"文件【{filename}】下载失败（状态：{status_text}）")
-                    if is_single_file:
-                        raise AssertionError(f"❌ 单文件下载失败！文件【{filename}】状态为“重试”")
-                    continue
-                
-                # 大小校验逻辑
-                current_size = 0
-                total_size = 0
-                size_valid = True
-                size_completed = False
-                if filename in download_size_dict and "/" in download_size_dict.get(filename, ""):
-                    try:
-                        size_text = download_size_dict[filename].strip()
-                        current_str, total_str = size_text.split("/", 1)
-                        current_size = self._parse_size_to_bytes(current_str)
-                        total_size = self._parse_size_to_bytes(total_str)
-                        
-                        # 校验1：当前大小 > 总大小→抛异常
-                        if current_size > total_size:
-                            raise AssertionError(
-                                f"文件【{filename}】大小异常！当前{format_size(current_size)} > 总{format_size(total_size)}"
-                            )
-                        logger.info(f"文件 {filename} 大小：{format_size(current_size)}/{format_size(total_size)}")
-                        
-                        # 校验2：大小完成判定（允许1KB误差）
-                        size_completed = abs(current_size - total_size) < 1024
-                        if size_completed:
-                            # 仅大小完成但状态为失败/重试→抛异常（真正异常）
-                            if "失败" in status_text:
-                                raise AssertionError(
-                                    f"文件【{filename}】状态异常！大小已完成，但状态为{status_text}（失败）"
-                                )
-                            # 大小完成但进度<100%且未显示“打开”→仅警告，不终止
-                            elif current_progress < 100.0 and "打开" not in status_text:
-                                logger.warning(
-                                    f"文件【{filename}】大小已完成（{format_size(total_size)}），但进度显示{status_text}（百分比未同步），视为完成"
-                                )
-                    except ValueError as e:
-                        logger.warning(f"文件【{filename}】大小解析失败（{download_size_dict[filename]}）：{str(e)}")
-                        size_valid = False
-                    except Exception as e:
-                        logger.error(f"文件【{filename}】大小校验异常：{str(e)}", exc_info=True)
-                        size_valid = False
-                else:
-                    logger.warning(f"文件【{filename}】无有效大小信息，跳过大小校验")
-                    size_valid = False
-                
-                # 停滞检查逻辑（仅对未完成文件生效）
-                last_progress = file_progress_record[filename]["last_progress"]
-                # 未完成判定：未显示“打开” + 进度<100% + 大小未完成
-                is_unfinished = not (("打开" in status_text) or (current_progress >= 100.0) or size_completed)
-                if is_unfinished and current_progress == last_progress:
-                    file_progress_record[filename]["stagnant_count"] += 1
-                    if file_progress_record[filename]["stagnant_count"] >= stagnant_threshold:
-                        raise AssertionError(
-                            f"文件【{filename}】下载停滞！连续{stagnant_threshold * check_interval}秒进度未变（当前{current_progress}%）"
-                        )
-                else:
-                    file_progress_record[filename]["stagnant_count"] = 0
-                    if is_unfinished:  # 仅未完成文件更新进度记录
-                        file_progress_record[filename]["last_progress"] = current_progress
-                
-                # ========== 关键调整：完成判定优先级（打开 > 进度100% > 大小完成） ==========
-                status_completed = "打开" in status_text  # 优先级1：状态显示“打开”
-                progress_completed = current_progress >= 100.0  # 优先级2：进度100%
-                size_backup_completed = size_valid and size_completed  # 优先级3：大小完成（兜底）
-                is_completed = status_completed or progress_completed or size_backup_completed
-                
-                if is_completed:
-                    completed_files.append(filename)
-                    logger.info(
-                        f"文件【{filename}】下载完成！（判定依据：{'状态显示打开' if status_completed else '进度100%' if progress_completed else '大小完成'}）")
-                else:
-                    normal_files.append(filename)
-            
-            # 循环终止条件
-            logger.info(
-                f"本轮监控统计：已完成{len(completed_files)}个 | 失败{len(failed_files)}个 | 待监控{len(normal_files)}个")
-            
-            if len(normal_files) == 0 and len(completed_files) > 0:
-                if len(failed_files) > 0:
-                    logger.warning(f"⚠️  部分文件下载失败：{failed_files}，但其余文件已全部完成")
-                logger.info(f"✅ 监控结束！目标文件中{len(completed_files)}个完成，{len(failed_files)}个失败")
-                return True
-            
-            if len(normal_files) == 0 and len(completed_files) == 0 and len(failed_files) > 0:
-                raise AssertionError(f"❌ 所有文件下载失败！失败文件：{failed_files}（均显示“重试”状态）")
-            
-            time.sleep(check_interval)
-        
-        # 超时处理
-        final_status = []
-        for filename in filenames:
-            last_progress = file_progress_record[filename]["last_progress"]
-            is_failed = file_progress_record[filename]["is_failed"]
-            final_size = download_size_dict.get(filename, "无大小信息") if download_size_dict else "无大小信息"
-            status_desc = "失败（重试）" if is_failed else f"进度{last_progress:.1f}%"
-            final_status.append(f"{filename}: {status_desc} | 大小{final_size}")
-        raise TimeoutError(
-            f"❌ 下载超时！{max_timeout}秒内未完成所有正常文件下载，最终状态：{'; '.join(final_status)}"
-        )
-    
-    def get_download_list_file_number(self):
-        """验证下列表文件数量"""
-        try:
-            download_list_file_name = self.get_all_folder_texts(
-                locators.PAGE_SECTION, locators.JAN_DD_TITLE_NAME_TV
-            )
-            logger.info(f"获取到的文件名称为{download_list_file_name}")
-            return download_list_file_name
-        except Exception as e:
-            logger.error(f"获取下载列表文件名称失败")
-            raise e
-    
     def check_box_download_file(self, filenames):
         """根据文件名称勾选下载列表文件"""
         try:
@@ -1043,3 +840,115 @@ class SearchPage(BasePage):
         except Exception as e:
             logger.error("搜索主页勾选后的删除按钮不存在")
             raise e
+    
+    def get_download_list_file_number(self):
+        """验证下列表文件数量"""
+        try:
+            download_list_file_name = self.get_all_folder_texts(
+                locators.PAGE_SECTION, locators.JAN_DD_TITLE_NAME_TV
+            )
+            logger.info(f"获取到的文件名称为{download_list_file_name}")
+            return download_list_file_name
+        except Exception as e:
+            logger.error(f"获取下载列表文件名称失败")
+            raise e
+    
+    def get_download_file(self, filenames):
+        """获取下载列表下载成功的文件并且去除后缀"""
+        try:
+            current_page, all_pages = self.get_page_number_text()
+            download_file_list = self.get_all_folder_texts(
+                locators.PAGE_SECTION,
+                locators.JAN_DD_TITLE_NAME_TV
+            )
+            processed_list = [file.split('.', 1)[0] for file in download_file_list]
+            raw_progress_list = self.get_file_attributes(
+                self.root_list_layout,
+                self.janDdTitleNameTv,
+                self.jan_dd_status_tv,
+                filenames,
+                current_page,
+                all_pages,
+                "text",
+                self.next_page
+            )
+            open_file_list = []
+            for file_name, status in zip(processed_list, raw_progress_list):
+                # 判断状态是否包含“打开”（兼容不同表述）
+                if "打开" in str(status):
+                    open_file_list.append(file_name)
+                    logger.info(f"文件[{file_name}]状态为「打开」，已加入结果列表")
+                else:
+                    logger.debug(f"文件[{file_name}]状态非「打开」，状态：{status}")
+            
+            logger.info(f"筛选后状态为「打开」的文件列表：{open_file_list}")
+            return open_file_list
+        except Exception as e:
+            logger.info(f"下载列表文件获取失败")
+            raise e
+    
+    def get_current_download_progress(self, filenames):
+        """获取当前下载进度值"""
+        try:
+            current_page, all_pages = self.get_page_number_text()
+            # 字典，key=文件名，value=进度
+            progress_dict = {}
+            # 正则解析表达式，提取数字
+            progress_pattern = re.compile(r'(\d+)%')
+            while True:
+                # 获取原始进度列表（如 ['下载中43%', '下载中1%', '重试']）
+                raw_progress_list = self.get_file_attributes(
+                    self.root_list_layout,
+                    self.janDdTitleNameTv,
+                    self.jan_dd_status_tv,
+                    filenames,
+                    current_page,
+                    all_pages,
+                    "text",
+                    self.next_page
+                )
+                logger.debug(f"原始进度列表：{raw_progress_list}, 文件名列表：{filenames}")  # if download_progress<100:
+                for filename, raw_progress in zip(filenames, raw_progress_list):
+                    # 初始化当前文件进度
+                    progress_value = None
+                    # 下载中状态
+                    if "下载中" in raw_progress:
+                        # 提取数字部分（如 '下载中43%' → 43）
+                        match = progress_pattern.search(raw_progress)
+                        if match:
+                            progress_value = int(match.group(1))
+                            # 处理「重试」状态
+                    elif "重试" in raw_progress:
+                        progress_value = "重试"  # 用字符串标记重试状态
+                    
+                    # 处理「已完成」状态（如果有）
+                    elif "打开" in raw_progress:
+                        progress_value = 100
+                    progress_dict[filename] = progress_value
+                logger.debug(f"解析后的进度字典：{progress_dict}")
+                for filename, progress in progress_dict.items():
+                    if isinstance(progress, int):
+                        if progress < 100:
+                            logger.info(f"文件{filename}下载中，进度：{progress}%")
+                        elif progress == 100:
+                            logger.info(f"文件{filename}下载完成")
+                        elif progress == "重试":
+                            logger.warning(f"文件{filename}需要重试下载")
+                all_processed = all(
+                    p in [100, "重试"] for p in progress_dict.values()
+                )
+                if all_processed:
+                    break
+            return progress_dict
+        except Exception as e:
+            logger.error(f"")
+            raise e
+    
+    def restore_drive_application_status(self, drive):
+        folder_list = load_test_data("enter_folder_list.json")
+        home_page = HomePage(drive)
+        home_page.click_cloud()
+        enter_nut_cloud_home = DocumentHomePage(home_page.driver)
+        enter_nut_cloud_home.enter_file_page(folder_list[0]["filenames"])
+        enter_nut_cloud_home.enter_file_page(folder_list[1]["filenames"])
+        self.click_transmission_list_btn()

@@ -12,11 +12,14 @@ APP_INFO_CONFIG = {
     # 原应用（从 config['device'] 读取）
     "origin": {
         "appPackage": CONFIG["device"]["appPackage"],
-        "appActivity": CONFIG["device"]["appActivity"],
+        "appActivity": CONFIG["device"]["appActivity"]
     },
     # 书架应用（从 config['target_app'] 读取）
     "bookshelf_app": {
-        "appPackage": CONFIG["bookshelf_app"]["appPackage"],
-        "appActivity": CONFIG["bookshelf_app"]["appActivity"],
+        "intentAction": CONFIG["bookshelf_app"]["intentAction"],
+        "intentData": CONFIG["bookshelf_app"]["intentData"],
+        "intentFlags": CONFIG["bookshelf_app"]["intentFlags"],
+        "package": CONFIG["bookshelf_app"]["package"],
+        
     }
 }
